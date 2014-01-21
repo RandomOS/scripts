@@ -10,7 +10,7 @@ import optparse
 
 class Forwarder(asyncore.dispatcher):
 
-    def __init__(self, ip, port, remoteip, remoteport, backlog=32):
+    def __init__(self, ip, port, remoteip, remoteport, backlog=5):
         asyncore.dispatcher.__init__(self)
         self.remoteip = remoteip
         self.remoteport = remoteport
@@ -21,16 +21,15 @@ class Forwarder(asyncore.dispatcher):
 
     def handle_accept(self):
         conn, addr = self.accept()
-        Sender(Receiver(conn, addr[0], addr[1]), self.remoteip, self.remoteport)
+        Sender(Receiver(conn), self.remoteip, self.remoteport)
 
 
 class Receiver(asyncore.dispatcher):
 
-    def __init__(self, conn, clientaddr, clientport):
+    def __init__(self, conn):
         asyncore.dispatcher.__init__(self, conn)
         self.logger = logging.getLogger("Receiver")
-        self.clientaddr = clientaddr
-        self.clientport = clientport
+        self.clientaddr, self.clientport = conn.getpeername()
         self.from_client_buffer = ""
         self.to_client_buffer = ""
         self.Sender = None
