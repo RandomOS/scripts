@@ -23,7 +23,6 @@ class PipeThread(threading.Thread):
             try:
                 data = self.source_fd.recv(4096)
                 if len(data) > 0:
-                    source_addr = self.source_fd.getpeername()
                     self.logger.debug("read  %04i from %s:%d", len(data), self.source_addr[0], self.source_addr[1])
                     sent = self.target_fd.send(data)
                     self.logger.debug("write %04i to   %s:%d", sent, self.target_addr[0], self.target_addr[1])
@@ -31,6 +30,8 @@ class PipeThread(threading.Thread):
                     break
             except socket.error:
                 break
+        self.logger.debug("connection %s:%d is closed.", self.source_addr[0], self.source_addr[1])
+        self.logger.debug("connection %s:%d is closed.", self.target_addr[0], self.target_addr[1])
         self.source_fd.close()
         self.target_fd.close()
 
