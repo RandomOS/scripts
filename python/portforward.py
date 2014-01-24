@@ -82,6 +82,10 @@ if __name__ == '__main__':
         "-P", "--remote-port",
         type="int", dest="remote_port",
         help="Remote port to bind to")
+    parser.add_option(
+        "-v", "--verbose",
+        action="store_true", dest="verbose",
+        help="verbose")
     opts, args = parser.parse_args()
 
     if len(sys.argv) == 1 or len(args) > 0:
@@ -92,7 +96,12 @@ if __name__ == '__main__':
         parser.print_help()
         exit()
 
-    logging.basicConfig(level=logging.DEBUG, format="%(name)-11s: %(message)s")
+    if opts.verbose:
+        log_level = logging.DEBUG
+    else:
+        log_level = logging.CRITICAL
+
+    logging.basicConfig(level=log_level, format="%(name)-11s: %(message)s")
     forwarder = Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
 
     try:
