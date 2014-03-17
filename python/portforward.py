@@ -12,7 +12,7 @@ class PipeThread(threading.Thread):
 
     def __init__(self, source_fd, target_fd):
         super(PipeThread, self).__init__()
-        self.logger = logging.getLogger("PipeThread")
+        self.logger = logging.getLogger('PipeThread')
         self.source_fd = source_fd
         self.target_fd = target_fd
         self.source_addr = self.source_fd.getpeername()
@@ -23,18 +23,18 @@ class PipeThread(threading.Thread):
             try:
                 data = self.source_fd.recv(4096)
                 if len(data) > 0:
-                    self.logger.debug("read  %04i from %s:%d", len(data),
+                    self.logger.debug('read  %04i from %s:%d', len(data),
                                       self.source_addr[0], self.source_addr[1])
                     sent = self.target_fd.send(data)
-                    self.logger.debug("write %04i to   %s:%d", sent,
+                    self.logger.debug('write %04i to   %s:%d', sent,
                                       self.target_addr[0], self.target_addr[1])
                 else:
                     break
             except socket.error:
                 break
-        self.logger.debug("connection %s:%d is closed.", self.source_addr[0],
+        self.logger.debug('connection %s:%d is closed.', self.source_addr[0],
                           self.source_addr[1])
-        self.logger.debug("connection %s:%d is closed.", self.target_addr[0],
+        self.logger.debug('connection %s:%d is closed.', self.target_addr[0],
                           self.target_addr[1])
         self.source_fd.close()
         self.target_fd.close()
@@ -73,23 +73,23 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
 
     parser.add_option(
-        "-l", "--local-ip", dest="local_ip",
-        help="Local IP address to bind to")
+        '-l', '--local-ip', dest='local_ip',
+        help='Local IP address to bind to')
     parser.add_option(
-        "-p", "--local-port",
-        type="int", dest="local_port",
-        help="Local port to bind to")
+        '-p', '--local-port',
+        type='int', dest='local_port',
+        help='Local port to bind to')
     parser.add_option(
-        "-r", "--remote-ip", dest="remote_ip",
-        help="Local IP address to bind to")
+        '-r', '--remote-ip', dest='remote_ip',
+        help='Local IP address to bind to')
     parser.add_option(
-        "-P", "--remote-port",
-        type="int", dest="remote_port",
-        help="Remote port to bind to")
+        '-P', '--remote-port',
+        type='int', dest='remote_port',
+        help='Remote port to bind to')
     parser.add_option(
-        "-v", "--verbose",
-        action="store_true", dest="verbose",
-        help="verbose")
+        '-v', '--verbose',
+        action='store_true', dest='verbose',
+        help='verbose')
     opts, args = parser.parse_args()
 
     if len(sys.argv) == 1 or len(args) > 0:
@@ -105,11 +105,11 @@ if __name__ == '__main__':
     else:
         log_level = logging.CRITICAL
 
-    logging.basicConfig(level=log_level, format="%(name)-11s: %(message)s")
+    logging.basicConfig(level=log_level, format='%(name)-11s: %(message)s')
     forwarder = Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
 
     try:
         forwarder.run()
     except KeyboardInterrupt:
-        print "quit"
+        print 'quit'
         exit()

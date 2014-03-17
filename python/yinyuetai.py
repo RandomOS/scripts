@@ -11,26 +11,26 @@ import sys
 import logging
 import sqlite3
 
-logging.basicConfig(level=logging.CRITICAL, format="%(message)s", filename="error.log", filemode="a")
-logger = logging.getLogger("fetch")
+logging.basicConfig(level=logging.CRITICAL, format='%(message)s', filename='error.log', filemode='a')
+logger = logging.getLogger('fetch')
 logger.setLevel(logging.INFO)
 
 sql = """
 CREATE TABLE video(
-    "id" INTEGER NOT NULL PRIMARY KEY,
-    "hc" TEXT default NULL,
-    "hd" TEXT default NULL,
-    "he" TEXT default NULL
+    'id' INTEGER NOT NULL PRIMARY KEY,
+    'hc' TEXT default NULL,
+    'hd' TEXT default NULL,
+    'he' TEXT default NULL
 );
 """
 
 
 def init_db():
     global sql
-    if os.path.exists("yinyuetai.db"):
-        conn = sqlite3.connect("yinyuetai.db")
+    if os.path.exists('yinyuetai.db'):
+        conn = sqlite3.connect('yinyuetai.db')
     else:
-        conn = sqlite3.connect("yinyuetai.db")
+        conn = sqlite3.connect('yinyuetai.db')
         conn.execute(sql)
     return conn
 
@@ -46,17 +46,17 @@ percent = -1
 
 def fetch(video_id):
     global s, conn, count, total, percent
-    url = "http://www.yinyuetai.com/api/info/get-video-urls"
-    payload = {"json": "true", "videoId": video_id}
+    url = 'http://www.yinyuetai.com/api/info/get-video-urls'
+    payload = {'json': 'true', 'videoId': video_id}
     headers = {
-        "Accept": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; rv:27.0) Gecko/20131201 Firefox/27.0"
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:27.0) Gecko/20131201 Firefox/27.0'
     }
 
     count += 1
     if int(count * 100.0 / total) > percent:
         percent = int(count * 100.0 / total)
-        sys.stdout.write("\r%d%%" % percent)
+        sys.stdout.write('\r%d%%' % percent)
 
     try:
         r = s.get(url, headers=headers, params=payload, timeout=10)
@@ -77,9 +77,9 @@ def fetch(video_id):
     except:
         return
 
-    hc = result.get("hcVideoUrl")
-    hd = result.get("hdVideoUrl")
-    he = result.get("heVideoUrl")
+    hc = result.get('hcVideoUrl')
+    hd = result.get('hdVideoUrl')
+    he = result.get('heVideoUrl')
     if hc:
         hc = hc.split('?')[0]
     if hd:
@@ -89,7 +89,7 @@ def fetch(video_id):
 
     if hc or hd or he:
         try:
-            conn.execute("insert into video values (?, ?, ?, ?)", (video_id, hc, hd, he))
+            conn.execute('insert into video values (?, ?, ?, ?)', (video_id, hc, hd, he))
             if count % 10000 == 0:
                 conn.commit()
         except:
@@ -99,7 +99,7 @@ def fetch(video_id):
 def timer(f):
     import sys
     import time
-    if sys.platform[:3] == "win":
+    if sys.platform[:3] == 'win':
         timefunc = time.clock
     else:
         timefunc = time.time
@@ -109,7 +109,7 @@ def timer(f):
         try:
             return f(*args, **kargs)
         finally:
-            sys.stdout.write("time delta: %.2fs\n" % (timefunc() - now))
+            sys.stdout.write('time delta: %.2fs\n' % (timefunc() - now))
     return wrapper
 
 
@@ -122,7 +122,7 @@ def main():
     pool.join()
     conn.commit()
     conn.close()
-    sys.stdout.write("\r100%\n")
+    sys.stdout.write('\r100%\n')
 
 if __name__ == '__main__':
     main()

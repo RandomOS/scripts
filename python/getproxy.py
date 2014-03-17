@@ -59,7 +59,7 @@ class ThreadPool(object):
 
     def get_result(self):
         if not self.__finish:
-            raise Exception("worker not finished.")
+            raise Exception('worker not finished.')
         li = []
         while not self.__result_queue.empty():
             ret = self.__result_queue.get(False)
@@ -68,7 +68,7 @@ class ThreadPool(object):
 
     def wait_all(self):
         if not self.__start:
-            raise Exception("worker not started.")
+            raise Exception('worker not started.')
         self.__work_queue.join()
         self.__finish = True
 
@@ -76,30 +76,30 @@ class ThreadPool(object):
 def get_page_content(url):
     """ get page content """
     request = urllib2.Request(url)
-    request.add_header("Accept", "text/html")
-    request.add_header("Connection", "close")
-    request.add_header("DNT", "1")
-    request.add_header("User-Agent", "Mozilla/5.0 "
-                       "(Windows NT 7.0; rv:27.0) Firefox/27.0")
+    request.add_header('Accept', 'text/html')
+    request.add_header('Connection', 'close')
+    request.add_header('DNT', '1')
+    request.add_header('User-Agent', 'Mozilla/5.0 '
+                       '(Windows NT 7.0; rv:27.0) Firefox/27.0')
 
     try:
         response = urllib2.urlopen(request, timeout=5)
     except:
-        logging.error("urlopen %s", url)
+        logging.error('urlopen %s', url)
         return
 
-    content_type = response.headers.get("Content-Type")
+    content_type = response.headers.get('Content-Type')
     if not content_type:
         response.close()
         return
-    if content_type.find("text/html") == -1:
+    if content_type.find('text/html') == -1:
         response.close()
         return
 
     try:
         content = response.read()
     except:
-        logging.error("read %s", url)
+        logging.error('read %s', url)
         return
     finally:
         response.close()
@@ -114,8 +114,8 @@ def extract_proxy(content):
     pattern = re.compile('([a-zA-Z])="(\d)"')
     li = pattern.findall(content)
 
-    letter = "".join([i[0] for i in li])
-    number = "".join([i[1] for i in li])
+    letter = ''.join([i[0] for i in li])
+    number = ''.join([i[1] for i in li])
     table = string.maketrans(letter, number)
 
     pattern = re.compile('<td>(.+)<SCRIPT.+?\(":"\+([a-zA-Z+]+)\)'
@@ -124,7 +124,7 @@ def extract_proxy(content):
     for item in li:
         ip = item[0]
         port = item[1].replace('+', '').translate(table)
-        proxy_li.append("%s:%s" % (ip, port))
+        proxy_li.append('%s:%s' % (ip, port))
 
     return proxy_li
 
@@ -133,14 +133,14 @@ def fetch_proxy_list(page_count=1):
     """ fetch proxy list"""
     proxy_li = []
     for i in range(1, page_count + 1):
-        url = "http://www.cnproxy.com/proxy%d.html" % i
+        url = 'http://www.cnproxy.com/proxy%d.html' % i
         content = get_page_content(url)
         if content is None:
             continue
         try:
             proxy = extract_proxy(content)
         except:
-            logging.error("extract_proxy failed")
+            logging.error('extract_proxy failed')
             continue
         if proxy:
             proxy_li.extend(proxy)
@@ -149,8 +149,8 @@ def fetch_proxy_list(page_count=1):
 
 
 def check_proxy(proxy, timeout):
-    request = urllib2.Request("http://www.baidu.com/")
-    request.set_proxy(proxy, "http")
+    request = urllib2.Request('http://www.baidu.com/')
+    request.set_proxy(proxy, 'http')
 
     try:
         response = urllib2.urlopen(request, timeout=timeout)
@@ -178,7 +178,7 @@ def write_to_file(proxy_li, outfile):
     """write proxy list to file"""
     for proxy in proxy_li:
         outfile.write(proxy)
-        outfile.write("\n")
+        outfile.write('\n')
 
 
 def echo(content):
@@ -187,17 +187,17 @@ def echo(content):
 
 
 def main():
-    parser = argparse.ArgumentParser(version="1.0")
+    parser = argparse.ArgumentParser(version='1.0')
     group = parser.add_mutually_exclusive_group(required=True)
 
-    group.add_argument('-f', action="store_true", default=False,
-                       dest="fetch", help="fetch proxy list from internet")
+    group.add_argument('-f', action='store_true', default=False,
+                       dest='fetch', help='fetch proxy list from internet')
     group.add_argument('-i', metavar='in-file', type=argparse.FileType('rt'),
-                       dest="infile", help="read proxy list from in-file")
-    parser.add_argument("-c", action="store_true", default=False,
-                        dest="check", help="verify proxy list, delete invalid proxy")
+                       dest='infile', help='read proxy list from in-file')
+    parser.add_argument('-c', action='store_true', default=False,
+                        dest='check', help='verify proxy list, delete invalid proxy')
     parser.add_argument('-o', metavar='out-file', type=argparse.FileType('wt'),
-                        dest="outfile", help="write proxy list to out-file")
+                        dest='outfile', help='write proxy list to out-file')
 
     if not len(sys.argv) > 1:
         parser.print_help()
@@ -223,6 +223,6 @@ def main():
 
 
 if __name__ == '__main__':
-    FORMAT = "%(levelname)s %(message)s"
+    FORMAT = '%(levelname)s %(message)s'
     logging.basicConfig(level=logging.INFO, format=FORMAT)
     main()

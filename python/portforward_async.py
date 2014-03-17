@@ -28,10 +28,10 @@ class Receiver(asyncore.dispatcher):
 
     def __init__(self, conn):
         asyncore.dispatcher.__init__(self, conn)
-        self.logger = logging.getLogger("Receiver")
+        self.logger = logging.getLogger('Receiver')
         self.clientaddr, self.clientport = conn.getpeername()
-        self.from_client_buffer = ""
-        self.to_client_buffer = ""
+        self.from_client_buffer = ''
+        self.to_client_buffer = ''
         self.Sender = None
 
     def handle_connect(self):
@@ -40,7 +40,7 @@ class Receiver(asyncore.dispatcher):
     def handle_read(self):
         read = self.recv(4096)
         if len(read) > 0:
-            self.logger.debug("read  %04i --> from %s:%d", len(read), self.clientaddr, self.clientport)
+            self.logger.debug('read  %04i --> from %s:%d', len(read), self.clientaddr, self.clientport)
             self.from_client_buffer += read
 
     def writable(self):
@@ -48,7 +48,7 @@ class Receiver(asyncore.dispatcher):
 
     def handle_write(self):
         sent = self.send(self.to_client_buffer)
-        self.logger.debug("write %04i <-- to   %s:%d", sent, self.clientaddr, self.clientport)
+        self.logger.debug('write %04i <-- to   %s:%d', sent, self.clientaddr, self.clientport)
         self.to_client_buffer = self.to_client_buffer[sent:]
 
     def handle_close(self):
@@ -61,7 +61,7 @@ class Sender(asyncore.dispatcher):
 
     def __init__(self, Receiver, remoteaddr, remoteport):
         asyncore.dispatcher.__init__(self)
-        self.logger = logging.getLogger("Sender")
+        self.logger = logging.getLogger('Sender')
         self.remoteaddr = remoteaddr
         self.remoteport = remoteport
         self.Receiver = Receiver
@@ -75,7 +75,7 @@ class Sender(asyncore.dispatcher):
     def handle_read(self):
         read = self.recv(4096)
         if len(read) > 0:
-            self.logger.debug("read  <-- %04i from %s:%d", len(read), self.remoteaddr, self.remoteport)
+            self.logger.debug('read  <-- %04i from %s:%d', len(read), self.remoteaddr, self.remoteport)
             self.Receiver.to_client_buffer += read
 
     def writable(self):
@@ -83,7 +83,7 @@ class Sender(asyncore.dispatcher):
 
     def handle_write(self):
         sent = self.send(self.Receiver.from_client_buffer)
-        self.logger.debug("write --> %04i to   %s:%d", sent, self.remoteaddr, self.remoteport)
+        self.logger.debug('write --> %04i to   %s:%d', sent, self.remoteaddr, self.remoteport)
         self.Receiver.from_client_buffer = self.Receiver.from_client_buffer[sent:]
 
     def handle_close(self):
@@ -94,23 +94,23 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
 
     parser.add_option(
-        "-l", "--local-ip", dest="local_ip",
-        help="Local IP address to bind to")
+        '-l', '--local-ip', dest='local_ip',
+        help='Local IP address to bind to')
     parser.add_option(
-        "-p", "--local-port",
-        type="int", dest="local_port",
-        help="Local port to bind to")
+        '-p', '--local-port',
+        type='int', dest='local_port',
+        help='Local port to bind to')
     parser.add_option(
-        "-r", "--remote-ip", dest="remote_ip",
-        help="Local IP address to bind to")
+        '-r', '--remote-ip', dest='remote_ip',
+        help='Local IP address to bind to')
     parser.add_option(
-        "-P", "--remote-port",
-        type="int", dest="remote_port",
-        help="Remote port to bind to")
+        '-P', '--remote-port',
+        type='int', dest='remote_port',
+        help='Remote port to bind to')
     parser.add_option(
-        "-v", "--verbose",
-        action="store_true", dest="verbose",
-        help="verbose")
+        '-v', '--verbose',
+        action='store_true', dest='verbose',
+        help='verbose')
     opts, args = parser.parse_args()
 
     if len(sys.argv) == 1 or len(args) > 0:
@@ -126,11 +126,11 @@ if __name__ == '__main__':
     else:
         log_level = logging.CRITICAL
 
-    logging.basicConfig(level=log_level, format="%(name)-9s: %(message)s")
+    logging.basicConfig(level=log_level, format='%(name)-9s: %(message)s')
     Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
 
     try:
         asyncore.loop(use_poll=True)
     except KeyboardInterrupt:
-        print "quit"
+        print 'quit'
         exit()
