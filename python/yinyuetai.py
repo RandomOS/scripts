@@ -18,11 +18,11 @@ logger = logging.getLogger('fetch')
 logger.setLevel(logging.INFO)
 
 g_sql = """
-CREATE TABLE video(
-    'id' INTEGER NOT NULL PRIMARY KEY,
-    'hc' TEXT default NULL,
-    'hd' TEXT default NULL,
-    'he' TEXT default NULL
+CREATE TABLE video (
+    id INTEGER NOT NULL PRIMARY KEY,
+    hc TEXT default NULL,
+    hd TEXT default NULL,
+    he TEXT default NULL
 );
 """
 
