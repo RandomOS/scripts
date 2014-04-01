@@ -40,7 +40,7 @@ def init():
     global g_sql, g_begin_id, g_end_id, g_total
     if os.path.exists('yinyuetai.db'):
         conn = sqlite3.connect('yinyuetai.db')
-        query = conn.execute("select max(id) from video")
+        query = conn.execute('select max(id) from video')
         max_id = query.fetchone()[0]
         g_begin_id = max(g_begin_id, max_id + 1)
         if g_begin_id < g_end_id + 1:
