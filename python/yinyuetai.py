@@ -10,12 +10,7 @@ import os
 import re
 import sys
 import time
-import logging
 import sqlite3
-
-logging.basicConfig(level=logging.CRITICAL, format='%(message)s', filename='miss.log', filemode='a')
-logger = logging.getLogger('fetch')
-logger.setLevel(logging.INFO)
 
 g_sql = """
 CREATE TABLE video (
@@ -31,7 +26,8 @@ g_begin_id = 1
 g_end_id = 100
 g_total = g_end_id + 1 - g_begin_id
 g_percent = -1
-g_list = []
+g_result_list = []
+g_miss_id_list = []
 
 s = requests.Session()
 
@@ -55,7 +51,7 @@ def init():
 
 
 def fetch(video_id):
-    global s, g_conn, g_count, g_total, g_percent, g_list
+    global s, g_conn, g_count, g_total, g_percent, g_result_list
     url = 'http://www.yinyuetai.com/api/info/get-video-urls'
     payload = {'videoId': video_id}
     headers = {
@@ -71,10 +67,10 @@ def fetch(video_id):
     try:
         r = s.get(url, headers=headers, params=payload, timeout=10)
     except requests.exceptions.Timeout:
-        logger.info(video_id)
+        g_miss_id_list.append(video_id)
         return
     except:
-        logger.warn(video_id)
+        g_miss_id_list.append(video_id)
         return
 
     try:
@@ -98,18 +94,18 @@ def fetch(video_id):
         he = he.split('?')[0]
 
     if hc or hd or he:
-        g_list.append((video_id, hc, hd, he))
+        g_result_list.append((video_id, hc, hd, he))
 
     if g_count % 1000 == 0:
-        g_conn.executemany('insert into video values (?, ?, ?, ?)', g_list)
+        g_conn.executemany('insert into video values (?, ?, ?, ?)', g_result_list)
         g_conn.commit()
-        g_list = []
+        g_result_list = []
 
 
 def finish():
-    global g_conn, g_list
-    if g_list:
-        g_conn.executemany('insert into video values (?, ?, ?, ?)', g_list)
+    global g_conn, g_result_list
+    if g_result_list:
+        g_conn.executemany('insert into video values (?, ?, ?, ?)', g_result_list)
         g_conn.commit()
     g_conn.close()
     sys.stdout.write('\r100%\n')
@@ -145,36 +141,35 @@ def get_lastest_id():
     return lastest_id
 
 
-def collect_miss():
-    global g_conn, g_count, g_total, g_list
-    video_id_li = [line.strip('\n') for line in open('miss.log')]
-    g_conn = sqlite3.connect('yinyuetai.db')
-    g_count = 0
-    g_total = len(video_id_li)
-    for video_id in video_id_li:
-        fetch(video_id)
-
-    if g_list:
-        g_conn.executemany('insert into video values (?, ?, ?, ?)', g_list)
-        g_conn.commit()
-    g_conn.close()
-    sys.stdout.write('\r100%\n')
-
-
 @timer
 def main():
-    global g_conn, g_begin_id, g_end_id
+    global g_conn, g_begin_id, g_end_id, g_miss_id_list
     pool = gevent.pool.Pool(10)
     for i in range(g_begin_id, g_end_id + 1):
         pool.spawn(fetch, i)
     pool.join()
+
+    if os.path.exists('miss.txt'):
+        for line in open('miss.txt', 'rb'):
+            video_id = int(line.strip('\n'))
+            g_miss_id_list.append(video_id)
+        os.remove('miss.txt')
+
+    if len(g_miss_id_list) > 0:
+        miss_id_list = g_miss_id_list
+        g_miss_id_list = []
+        for i in miss_id_list:
+            pool.spawn(fetch, i)
+        pool.join()
+
+    if len(g_miss_id_list) > 0:
+        with open('miss.txt', 'wb') as f:
+            for i in g_miss_id_list:
+                f.write('%d\n' % i)
     finish()
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        collect_miss()
-    else:
-        g_end_id = get_lastest_id()
-        g_conn = init()
-        main()
+    g_end_id = get_lastest_id()
+    g_conn = init()
+    main()
