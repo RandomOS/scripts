@@ -86,12 +86,6 @@ def fetch(video_id):
     hc = result.get('hcVideoUrl')
     hd = result.get('hdVideoUrl')
     he = result.get('heVideoUrl')
-    if hc:
-        hc = hc.split('?')[0]
-    if hd:
-        hd = hd.split('?')[0]
-    if he:
-        he = he.split('?')[0]
 
     if hc or hd or he:
         g_result_list.append((video_id, hc, hd, he))
