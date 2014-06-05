@@ -1,10 +1,5 @@
-# Created by RandomK
-
 # Directory
-.git
 
 # File
-desktop.ini
+*.ini
 *.pyc
-
-
