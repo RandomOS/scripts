@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 import urllib2
 import logging
 import threading
@@ -78,8 +79,47 @@ class ThreadPool(object):
         return li
 
 
+def get_google_ip_list():
+    """ get google ip list """
+    url = 'http://users16.jabry.com/kookle/index.html'
+    try:
+        response = urllib2.urlopen(url, timeout=10)
+    except urllib2.HTTPError as e:
+        logger.error('HTTP Error %s: %s %s', e.code, e.reason, url)
+        return
+    except urllib2.URLError as e:
+        logger.error('URL Error: %s %s', e.reason, url)
+        return
+    except Exception as e:
+        logger.error('Error: %s %s', e, url)
+        return
+
+    try:
+        data = response.read()
+    except Exception as e:
+        logger.error('Error: %s', e)
+        return
+    finally:
+        response.close()
+
+    pattern = re.compile('<script.+</script>', re.DOTALL)
+    m = pattern.search(data)
+    data = m.group(0)
+
+    pattern = re.compile('(\d{1,3}\.\d{1,3}.\d{1,3})\.(\d{1,3})/(\d{1,3})')
+    ip_group_list = pattern.findall(data)
+
+    ip_list = []
+    for ip_group in ip_group_list:
+        ip_prefix, start, end = ip_group
+        for i in range(int(start), int(end) + 1):
+            ip_list.append('%s.%d' % (ip_prefix, i))
+
+    return ip_list
+
+
 def check_google_ip(ip):
-    """ get page content """
+    """ check google ip """
     url = 'https://%s/' % ip
     request = urllib2.Request(url)
     request.add_header('Accept', 'text/html,application/xhtml+xml')
@@ -106,9 +146,11 @@ def check_google_ip(ip):
 
 
 def main():
-    ip_list = [line.strip('\n') for line in open('google_ip.txt')]
+    print 'get google ip list...'
+    ip_list = get_google_ip_list()
 
-    threadpool = ThreadPool(20)
+    print 'check google ip list...'
+    threadpool = ThreadPool(40)
 
     for ip in ip_list:
         threadpool.add_job(check_google_ip, ip)
@@ -118,7 +160,7 @@ def main():
 
     ret_li = threadpool.get_result()
 
-    with open('available.txt', 'w') as f:
+    with open('google.txt', 'w') as f:
         for ip in ret_li:
             f.write(ip + '\n')
     print 'finish.'
