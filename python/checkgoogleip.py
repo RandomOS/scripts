@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import re
+import time
 import urllib2
 import logging
 import threading
@@ -77,6 +79,14 @@ class ThreadPool(object):
             ret = self.__result_queue.get(False)
             li.append(ret)
         return li
+
+
+def timefunc():
+    """ time function """
+    if os.name == 'nt':
+        return time.clock()
+    else:
+        return time.time()
 
 
 def get_google_ip_list():
@@ -164,8 +174,10 @@ def get_google_ip_list():
 
 def check_google_ip(ip):
     """ check google ip """
+    start = timefunc()
     url = 'https://%s/' % ip
     request = urllib2.Request(url)
+    request.get_method = lambda: 'HEAD'
     request.add_header('Accept', 'text/html,application/xhtml+xml')
     request.add_header('Connection', 'close')
     request.add_header('User-Agent', 'Mozilla/5.0 '
@@ -185,12 +197,14 @@ def check_google_ip(ip):
         logger.error('Error: %s %s', e, url)
         return
 
+    end = timefunc()
+    duration = int((end - start) * 1000)
+
     if response.code == 200:
-        return ip
+        return (ip, duration)
 
 
 def main():
-    print 'get google ip list...'
     ip_list = get_google_ip_list()
 
     print 'check google ip list...'
@@ -205,8 +219,9 @@ def main():
     ret_li = threadpool.get_result()
 
     with open('google.txt', 'w') as f:
-        for ip in ret_li:
-            f.write(ip + '\n')
+        ret_li.sort(key=lambda x: x[1])
+        for ip, duration in ret_li:
+            f.write('%-15s  %dms\n' % (ip, duration))
     print 'finish.'
 
 
