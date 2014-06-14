@@ -22,36 +22,49 @@ CREATE TABLE video (
 """
 
 g_count = 0
-g_begin_id = 1
-g_end_id = 100
-g_total = g_end_id + 1 - g_begin_id
-g_percent = -1
+g_percent = 0
+g_total = 0
+g_id_list = []
 g_result_list = []
 g_miss_id_list = []
 
 s = requests.Session()
 
 
-def init():
-    global g_sql, g_begin_id, g_end_id, g_total
+def initialize_data():
+    global g_conn, g_sql, g_total, g_id_list
     if os.path.exists('yinyuetai.db'):
         conn = sqlite3.connect('yinyuetai.db')
         query = conn.execute('select max(id) from video')
         max_id = query.fetchone()[0]
-        g_begin_id = max(g_begin_id, max_id + 1)
-        if g_begin_id < g_end_id + 1:
-            g_total = g_end_id + 1 - g_begin_id
-        else:
+
+        g_id_list = []
+        if os.path.exists('miss.txt'):
+            g_id_list += [int(i.strip('\n')) for i in open('miss.txt')]
+            os.remove('miss.txt')
+            if len(g_id_list) > 0:
+                max_id = max(max_id, max(g_id_list))
+
+        begin = max_id + 1
+        end = get_lastest_id()
+        if begin < end + 1:
+            g_id_list += range(begin, end + 1)
+
+        g_total = len(g_id_list)
+        if g_total == 0:
             sys.stdout.write('exit.\n')
             sys.exit()
     else:
         conn = sqlite3.connect('yinyuetai.db')
         conn.execute(g_sql)
-    return conn
+        g_id_list = range(1, 1000)
+        g_total = len(g_id_list)
+    g_conn = conn
+    sys.stdout.write('\r0%')
 
 
 def fetch(video_id):
-    global s, g_conn, g_count, g_total, g_percent, g_result_list
+    global s, g_conn, g_count, g_total, g_percent, g_result_list, g_miss_id_list
     url = 'http://www.yinyuetai.com/api/info/get-video-urls'
     payload = {'videoId': video_id}
     headers = {
@@ -106,7 +119,7 @@ def finish():
 
 
 def timer(f):
-    if sys.platform[:3] == 'win':
+    if os.name == 'nt':
         timefunc = time.clock
     else:
         timefunc = time.time
@@ -121,7 +134,7 @@ def timer(f):
 
 
 def get_lastest_id():
-    global s, g_end_id
+    global s
     try:
         url = 'http://mv.yinyuetai.com/all?sort=pubdate'
         r = s.get(url, timeout=10)
@@ -131,39 +144,27 @@ def get_lastest_id():
         lastest_id = int(max(pattern.findall(html)))
     except:
         sys.stdout.write('get lastest id failed!\n')
-        return g_end_id
+        return 0
     return lastest_id
 
 
 @timer
 def main():
-    global g_conn, g_begin_id, g_end_id, g_miss_id_list
-    pool = gevent.pool.Pool(10)
-    for i in range(g_begin_id, g_end_id + 1):
+    global g_id_list, g_miss_id_list
+    initialize_data()
+
+    pool = gevent.pool.Pool(20)
+
+    for i in g_id_list:
         pool.spawn(fetch, i)
     pool.join()
 
-    if os.path.exists('miss.txt'):
-        for line in open('miss.txt', 'rb'):
-            video_id = int(line.strip('\n'))
-            g_miss_id_list.append(video_id)
-        os.remove('miss.txt')
-
     if len(g_miss_id_list) > 0:
-        miss_id_list = g_miss_id_list
-        g_miss_id_list = []
-        for i in miss_id_list:
-            pool.spawn(fetch, i)
-        pool.join()
-
-    if len(g_miss_id_list) > 0:
-        with open('miss.txt', 'wb') as f:
+        with open('miss.txt', 'w') as f:
             for i in g_miss_id_list:
                 f.write('%d\n' % i)
     finish()
 
 
 if __name__ == '__main__':
-    g_end_id = get_lastest_id()
-    g_conn = init()
     main()
