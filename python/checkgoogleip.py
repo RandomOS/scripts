@@ -188,7 +188,7 @@ def check_google_ip(ip):
     try:
         response = urllib2.urlopen(request, timeout=10)
     except urllib2.HTTPError as e:
-        logger.error('HTTP Error %s: %s %s', e.code, e.reason, url)
+        logger.error('HTTP Error %s: %s %s', e.code, e.msg, url)
         return
     except urllib2.URLError as e:
         logger.error('URL Error: %s %s', e.reason, url)
