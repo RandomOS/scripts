@@ -11,6 +11,12 @@ import Queue
 import argparse
 
 
+class ThreadPoolException(Exception):
+
+    """ Thread Pool Exception"""
+    pass
+
+
 class WorkThread(threading.Thread):
 
     """ WorkThread """
@@ -27,12 +33,12 @@ class WorkThread(threading.Thread):
             except Queue.Empty:
                 return
             try:
-                ret = None
                 ret = func(*nkwargs, **kwargs)
             except:
                 pass
-            if ret:
-                self.__result_queue.put(ret)
+            else:
+                if ret:
+                    self.__result_queue.put(ret)
             self.__work_queue.task_done()
 
 
@@ -57,20 +63,20 @@ class ThreadPool(object):
     def add_job(self, func, *nkwargs, **kwargs):
         self.__work_queue.put((func, nkwargs, kwargs))
 
+    def wait_all(self):
+        if not self.__start:
+            raise ThreadPoolException('Worker not started.')
+        self.__work_queue.join()
+        self.__finish = True
+
     def get_result(self):
         if not self.__finish:
-            raise Exception('worker not finished.')
+            raise ThreadPoolException('Worker not finished.')
         li = []
         while not self.__result_queue.empty():
             ret = self.__result_queue.get(False)
             li.append(ret)
         return li
-
-    def wait_all(self):
-        if not self.__start:
-            raise Exception('worker not started.')
-        self.__work_queue.join()
-        self.__finish = True
 
 
 def get_page_content(url):
