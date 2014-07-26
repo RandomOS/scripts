@@ -21,6 +21,7 @@ CREATE TABLE video (
 );
 """
 
+g_conn = None
 g_count = 0
 g_percent = 0
 g_total = 0
@@ -32,7 +33,7 @@ s = requests.Session()
 
 
 def initialize_data():
-    global g_conn, g_sql, g_total, g_id_list
+    global g_conn, g_total, g_id_list
     if os.path.exists('yinyuetai.db'):
         conn = sqlite3.connect('yinyuetai.db')
         query = conn.execute('select max(id) from video')
@@ -64,7 +65,7 @@ def initialize_data():
 
 
 def fetch(video_id):
-    global s, g_conn, g_count, g_total, g_percent, g_result_list, g_miss_id_list
+    global g_count, g_percent, g_result_list
     url = 'http://www.yinyuetai.com/api/info/get-video-urls'
     payload = {'videoId': video_id}
     headers = {
@@ -110,7 +111,6 @@ def fetch(video_id):
 
 
 def finish():
-    global g_conn, g_result_list
     if g_result_list:
         g_conn.executemany('insert into video values (?, ?, ?, ?)', g_result_list)
         g_conn.commit()
@@ -134,12 +134,11 @@ def timer(f):
 
 
 def get_lastest_id():
-    global s
     try:
         url = 'http://mv.yinyuetai.com/all?sort=pubdate'
         r = s.get(url, timeout=10)
         html = r.content
-        regex_str = 'http:\/\/v.yinyuetai.com\/video\/(\d+)'
+        regex_str = r'http:\/\/v.yinyuetai.com\/video\/(\d+)'
         pattern = re.compile(regex_str)
         lastest_id = int(max(pattern.findall(html)))
     except:
@@ -150,7 +149,6 @@ def get_lastest_id():
 
 @timer
 def main():
-    global g_id_list, g_miss_id_list
     initialize_data()
 
     pool = gevent.pool.Pool(20)

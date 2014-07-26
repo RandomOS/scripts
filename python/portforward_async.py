@@ -44,7 +44,7 @@ class Receiver(asyncore.dispatcher):
             self.from_client_buffer += read
 
     def writable(self):
-        return (len(self.to_client_buffer) > 0)
+        return len(self.to_client_buffer) > 0
 
     def handle_write(self):
         sent = self.send(self.to_client_buffer)
@@ -79,7 +79,7 @@ class Sender(asyncore.dispatcher):
             self.Receiver.to_client_buffer += read
 
     def writable(self):
-        return (len(self.Receiver.from_client_buffer) > 0)
+        return len(self.Receiver.from_client_buffer) > 0
 
     def handle_write(self):
         sent = self.send(self.Receiver.from_client_buffer)
@@ -90,7 +90,8 @@ class Sender(asyncore.dispatcher):
         self.close()
         self.Receiver.close()
 
-if __name__ == '__main__':
+
+def main():
     parser = optparse.OptionParser()
 
     parser.add_option(
@@ -134,3 +135,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print 'quit'
         exit()
+
+
+if __name__ == '__main__':
+    main()

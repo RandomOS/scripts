@@ -160,7 +160,7 @@ def get_google_ip_list():
         '93.123.23.1/59'
     ]
 
-    pattern = re.compile('(\d{1,3}\.\d{1,3}.\d{1,3})\.(\d{1,3})/(\d{1,3})')
+    pattern = re.compile(r'(\d{1,3}\.\d{1,3}.\d{1,3})\.(\d{1,3})/(\d{1,3})')
     ip_group_list = pattern.findall('\n'.join(ip_data))
 
     ip_list = []

@@ -69,7 +69,7 @@ class Forwarder(object):
         self.sock.close()
 
 
-if __name__ == '__main__':
+def main():
     parser = optparse.OptionParser()
 
     parser.add_option(
@@ -113,3 +113,7 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print 'quit'
         exit()
+
+
+if __name__ == '__main__':
+    main()

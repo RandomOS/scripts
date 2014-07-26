@@ -117,14 +117,14 @@ def extract_proxy(content):
     """extract proxy"""
     proxy_li = []
 
-    pattern = re.compile('([a-zA-Z])="(\d)"')
+    pattern = re.compile(r'([a-zA-Z])="(\d)"')
     li = pattern.findall(content)
 
     letter = ''.join([i[0] for i in li])
     number = ''.join([i[1] for i in li])
     table = string.maketrans(letter, number)
 
-    pattern = re.compile('<td>(.+)<SCRIPT.+?\(":"\+([a-zA-Z+]+)\)'
+    pattern = re.compile(r'<td>(.+)<SCRIPT.+?\(":"\+([a-zA-Z+]+)\)'
                          '</SCRIPT></td><td>HTTP</td>', re.I)
     li = pattern.findall(content)
     for item in li:
