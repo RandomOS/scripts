@@ -141,7 +141,7 @@ def check_google_ip(ip, use_https):
 
 
 def main():
-    parser = argparse.ArgumentParser(version='0.1')
+    parser = argparse.ArgumentParser()
     parser.add_argument('-i', metavar='in-file', type=argparse.FileType('rt'),
                         dest='in_file', required=True, help='read ip list from in-file')
     parser.add_argument('-o', metavar='out-file', type=argparse.FileType('wt'),
