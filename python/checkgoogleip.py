@@ -3,14 +3,16 @@
 
 import os
 import re
+import sys
 import time
 import urllib2
 import logging
 import threading
 import Queue
+import argparse
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('check_google_ip')
 
 
 class ThreadPoolException(Exception):
@@ -89,93 +91,26 @@ def timefunc():
         return time.time()
 
 
-def get_google_ip_list():
+def get_google_ip_list(ip_data):
     """ get google ip list """
-    ip_data = [
-        '1.179.248.132/187',
-        '1.179.248.196/251',
-        '1.179.248.4/59',
-        '1.179.248.68/123',
-        '1.179.249.132/187',
-        '1.179.249.196/251',
-        '1.179.249.4/59',
-        '1.179.249.68/123',
-        '1.179.250.132/187',
-        '1.179.250.196/251',
-        '1.179.250.4/59',
-        '1.179.250.68/123',
-        '1.179.251.140/187',
-        '1.179.251.196/251',
-        '1.179.251.4/59',
-        '1.179.251.68/123',
-        '1.179.252.132/187',
-        '1.179.252.196/251',
-        '1.179.252.68/123',
-        '1.179.253.4/59',
-        '1.179.253.76/123',
-        '103.25.178.12/59',
-        '103.25.178.4/6',
-        '111.92.162.12/59',
-        '111.92.162.4/6',
-        '118.174.25.132/187',
-        '118.174.25.196/251',
-        '118.174.25.4/59',
-        '118.174.25.68/123',
-        '118.174.27.0/24',
-        '121.78.74.68/123',
-        '123.205.250.68/190',
-        '123.205.251.68/123',
-        '149.126.86.1/59',
-        '163.28.116.1/59',
-        '163.28.83.143/187',
-        '173.194.0.0/16',
-        '173.194.112.0/24',
-        '178.45.251.4/123',
-        '193.90.147.0/7',
-        '193.90.147.12/59',
-        '193.90.147.76/123',
-        '197.199.253.1/59',
-        '197.199.254.1/59',
-        '202.39.143.1/123',
-        '203.116.165.129/255',
-        '203.117.34.132/187',
-        '203.211.0.4/59',
-        '203.66.124.129/251',
-        '210.61.221.65/187',
-        '213.240.44.5/27',
-        '218.176.242.4/251',
-        '218.189.25.129/187',
-        '218.253.0.140/187',
-        '218.253.0.76/92',
-        '41.206.96.1/251',
-        '41.84.159.12/30',
-        '60.199.175.1/187',
-        '61.219.131.193/251',
-        '61.219.131.65/123',
-        '62.197.198.193/251',
-        '62.201.216.196/251',
-        '84.235.77.1/251',
-        '87.244.198.161/187',
-        '88.159.13.196/251',
-        '93.123.23.1/59'
-    ]
+    pattern = re.compile(r'^\d{1,3}\.\d{1,3}.\d{1,3}\.\d{1,3}$', re.M)
+    ip_list = pattern.findall(ip_data)
 
-    pattern = re.compile(r'(\d{1,3}\.\d{1,3}.\d{1,3})\.(\d{1,3})/(\d{1,3})')
-    ip_group_list = pattern.findall('\n'.join(ip_data))
+    pattern = re.compile(r'^(\d{1,3}\.\d{1,3}.\d{1,3})\.(\d{1,3})-(\d{1,3})$', re.M)
+    ip_group_list = pattern.findall(ip_data)
 
-    ip_list = []
     for ip_group in ip_group_list:
         ip_prefix, start, end = ip_group
         for i in range(int(start), int(end) + 1):
             ip_list.append('%s.%d' % (ip_prefix, i))
+    return set(ip_list)
 
-    return ip_list
 
-
-def check_google_ip(ip):
+def check_google_ip(ip, use_https):
     """ check google ip """
     start = timefunc()
-    url = 'https://%s/' % ip
+    protocol = 'https' if use_https else 'http'
+    url = '%s://%s/' % (protocol, ip)
     request = urllib2.Request(url)
     request.get_method = lambda: 'HEAD'
     request.add_header('Accept', 'text/html,application/xhtml+xml')
@@ -183,7 +118,7 @@ def check_google_ip(ip):
     request.add_header('User-Agent', 'Mozilla/5.0 '
                        '(Windows NT 6.3; rv:30.0) Gecko/20140401 Firefox/30.0')
 
-    # request.set_proxy('127.0.0.1:8087', 'http')
+    # request.set_proxy('127.0.0.1:8888', 'http')
 
     try:
         response = urllib2.urlopen(request, timeout=10)
@@ -201,27 +136,51 @@ def check_google_ip(ip):
     duration = int((end - start) * 1000)
 
     if response.code == 200:
-        return (ip, duration)
+        if response.headers.getheader('server') == 'gws':
+            return (ip, duration)
 
 
 def main():
-    ip_list = get_google_ip_list()
+    parser = argparse.ArgumentParser(version='0.1')
+    parser.add_argument('-i', metavar='in-file', type=argparse.FileType('rt'),
+                        dest='in_file', required=True, help='read ip list from in-file')
+    parser.add_argument('-o', metavar='out-file', type=argparse.FileType('wt'),
+                        dest='out_file', help='write google ip to out-file')
+    parser.add_argument('--use-https', action='store_true', default=False,
+                        dest='use_https', help='use https protocol to check ip')
+
+    if not len(sys.argv) > 1:
+        parser.print_help()
+        exit()
+
+    opts = parser.parse_args()
+
+    if opts.in_file:
+        ip_data = opts.in_file.read()
+        opts.in_file.close()
+
+    ip_list = get_google_ip_list(ip_data)
 
     print 'check google ip list...'
     threadpool = ThreadPool(40)
 
     for ip in ip_list:
-        threadpool.add_job(check_google_ip, ip)
+        threadpool.add_job(check_google_ip, ip, opts.use_https)
 
     threadpool.start()
     threadpool.wait_all()
 
     ret_li = threadpool.get_result()
 
-    with open('google.txt', 'w') as f:
-        ret_li.sort(key=lambda x: x[1])
-        for ip, duration in ret_li:
-            f.write('%-15s  %dms\n' % (ip, duration))
+    if opts.out_file:
+        f = opts.out_file
+    else:
+        f = open('google.txt', 'w')
+
+    ret_li.sort(key=lambda x: x[1])
+    for ip, duration in ret_li:
+        f.write('%-15s  %dms\n' % (ip, duration))
+    f.close()
     print 'finish.'
 
 
