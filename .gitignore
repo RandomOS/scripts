@@ -1,5 +1,4 @@
 # Directory
 
 # File
-*.ini
-*.pyc
+*.py[co]
