@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import io
+import os
 import re
 import sys
 import gzip
@@ -96,7 +97,9 @@ class GoogleFetch(object):
         content = content.replace('b=a.pushdown_promo', 'null')
         content = content.replace('!_.x("promo").innerText', 'null')
         content = content.replace('margin-left:12px', 'display:none')
-        content = content.replace('background:url(/images/', 'background:url(https://wen.lu/images/')
+        content = content.replace('="/images/', '="https://wen.lu/images/')
+        content = content.replace('=\'/images/', '=\'https://wen.lu/images/')
+        content = content.replace('url(/images/', 'url(https://wen.lu/images/')
         content = content.replace('//ssl.gstatic.com', 'https://www.glgoo.com/gstatic/ssl')
         content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'http://fonts.useso.com', content)
         content = re.sub(r'(https?:)?//www\.google\.com', 'https://wen.lu', content)
@@ -276,8 +279,17 @@ class ThreadedHTTPServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer)
 
 
 def main():
+    if len(sys.argv) != 3:
+        print '%s <ip> <port>' % os.path.basename(sys.argv[0])
+        sys.exit()
+
+    ip = sys.argv[1]
+    port = int(sys.argv[2])
+    httpd = ThreadedHTTPServer((ip, port), TimeoutHTTPRequestHandler)
+
+    print 'Serving HTTP on %s port %d ...' % (ip, port)
     try:
-        BaseHTTPServer.test(TimeoutHTTPRequestHandler, ThreadedHTTPServer, 'HTTP/1.1')
+        httpd.serve_forever()
     except KeyboardInterrupt:
         print '^C received, shutting down server'
 
