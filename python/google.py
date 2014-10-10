@@ -14,7 +14,7 @@ import SocketServer
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 logger = logging.getLogger('google')
 
-GOOGLE_IP = '91.213.30.143'
+GOOGLE_IP = '203.116.165.138'
 
 
 class GoogleFetch(object):
