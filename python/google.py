@@ -124,7 +124,7 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def process(self):
         """ process added """
-        accept = self.headers.getheader('content-length')
+        accept = self.headers.getheader('accept')
         accept_encoding = self.headers.getheader('accept-encoding')
         accept_language = self.headers.getheader('accept-language')
         host = self.headers.getheader('Host')
