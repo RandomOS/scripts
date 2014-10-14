@@ -124,9 +124,11 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def process(self):
         """ process added """
-        if self.path.startswith('/generate_204') or self.path.startswith('/gen_204'):
-            self.send_error(204)
-            return
+        ignored_paths = ('/generate_204', '/gen_204', '/client_204')
+        for ignored_path in ignored_paths:
+            if self.path.startswith(ignored_path):
+                self.send_error(204)
+                return
 
         accept = self.headers.getheader('accept')
         accept_encoding = self.headers.getheader('accept-encoding')
