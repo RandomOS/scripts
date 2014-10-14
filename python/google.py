@@ -94,16 +94,16 @@ class GoogleFetch(object):
         return response.code, response_headers, content
 
     def replace(self, content, host):
-        content = content.replace('b=a.pushdown_promo', 'null')
-        content = content.replace('!_.x("promo").innerText', 'null')
-        content = content.replace('margin-left:12px', 'display:none')
+        content = content.replace('x.push(', '(')
+        content = content.replace('!google.xjs', 'null')
+        content = content.replace('google.log=', 'google.log=function(){};_log=')
         content = content.replace('="/images/', '="https://wen.lu/images/')
         content = content.replace('=\'/images/', '=\'https://wen.lu/images/')
         content = content.replace('url(/images/', 'url(https://wen.lu/images/')
         content = content.replace('//ssl.gstatic.com', 'https://www.glgoo.com/gstatic/ssl')
-        content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'http://fonts.useso.com', content)
-        content = re.sub(r'(https?:)?//www\.google\.com', 'https://wen.lu', content)
-        content = re.sub(r'(https?:)?//%s' % self.google_ip.replace('.', r'\.'), 'http://%s' % host, content)
+        content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
+        content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
+        content = re.sub(r'(https?:)?//%s' % self.google_ip.replace('.', r'\.'), '//%s' % host, content)
         return content
 
 
@@ -124,12 +124,6 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def process(self):
         """ process added """
-        ignored_paths = ('/generate_204', '/gen_204', '/client_204')
-        for ignored_path in ignored_paths:
-            if self.path.startswith(ignored_path):
-                self.send_error(204)
-                return
-
         accept = self.headers.getheader('accept')
         accept_encoding = self.headers.getheader('accept-encoding')
         accept_language = self.headers.getheader('accept-language')
