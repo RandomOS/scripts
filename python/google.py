@@ -100,7 +100,7 @@ class GoogleFetch(object):
         content = content.replace('="/images/', '="https://www.sssis.com/images/')
         content = content.replace('=\'/images/', '=\'https://www.sssis.com/images/')
         content = content.replace('url(/images/', 'url(https://www.sssis.com/images/')
-        content = content.replace('//ssl.gstatic.com', 'https://www.sssis.com/sslgstatic/')
+        content = content.replace('//ssl.gstatic.com', 'https://www.sssis.com/sslgstatic')
         content = re.sub(r'onmousedown=".+?"', '', content)
         content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
         content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
