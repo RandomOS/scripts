@@ -15,7 +15,7 @@ import SocketServer
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 logger = logging.getLogger('google')
 
-GOOGLE_IP = '203.116.165.138'
+GOOGLE_IP = '210.242.125.83'
 
 
 class GoogleFetch(object):
@@ -125,6 +125,16 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def process(self):
         """ process added """
+        if self.path == '/robots.txt':
+            self.send_response(200)
+            content = 'User-agent: *\nDisallow: /'
+            self.send_header('Content-Type', 'text/plain; charset=utf-8')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            if self.command != 'HEAD':
+                self.wfile.write(content)
+            return
+
         accept = self.headers.getheader('accept')
         accept_encoding = self.headers.getheader('accept-encoding')
         accept_language = self.headers.getheader('accept-language')
