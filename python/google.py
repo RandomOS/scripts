@@ -78,7 +78,7 @@ class GoogleFetch(object):
                 gz_file.close()
 
         if response.code == 200:
-            text_types = ['text/html', 'text/css', 'text/javascript']
+            text_types = ['text/html']
             for text_type in text_types:
                 if content_type.startswith(text_type):
                     content = self.replace(content, headers['host'])
@@ -101,6 +101,7 @@ class GoogleFetch(object):
         content = content.replace('=\'/images/', '=\'https://wen.lu/images/')
         content = content.replace('url(/images/', 'url(https://wen.lu/images/')
         content = content.replace('//ssl.gstatic.com', 'https://www.glgoo.com/gstatic/ssl')
+        content = re.sub(r'onmousedown=".+?" ', '', content)
         content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
         content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
         content = re.sub(r'(https?:)?//%s' % self.google_ip.replace('.', r'\.'), '//%s' % host, content)
