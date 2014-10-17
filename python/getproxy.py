@@ -3,12 +3,13 @@
 
 import re
 import sys
-import string
 import urllib2
 import logging
 import threading
 import Queue
 import argparse
+
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
 
 
 class ThreadPoolException(Exception):
@@ -89,7 +90,7 @@ def get_page_content(url):
                        '(Windows NT 7.0; rv:27.0) Firefox/27.0')
 
     try:
-        response = urllib2.urlopen(request, timeout=5)
+        response = urllib2.urlopen(request, timeout=10)
     except:
         logging.error('urlopen %s', url)
         return
@@ -114,47 +115,37 @@ def get_page_content(url):
 
 
 def extract_proxy(content):
-    """extract proxy"""
+    """ extract proxy """
     proxy_li = []
-
-    pattern = re.compile(r'([a-zA-Z])="(\d)"')
-    li = pattern.findall(content)
-
-    letter = ''.join([i[0] for i in li])
-    number = ''.join([i[1] for i in li])
-    table = string.maketrans(letter, number)
-
-    pattern = re.compile(r'<td>(.+)<SCRIPT.+?\(":"\+([a-zA-Z+]+)\)'
-                         '</SCRIPT></td><td>HTTP</td>', re.I)
-    li = pattern.findall(content)
-    for item in li:
-        ip = item[0]
-        port = item[1].replace('+', '').translate(table)
+    pattern = re.compile(r'<tr><td>([\d.]+)</td><td>(\d+)</td>', re.I)
+    match = pattern.findall(content)
+    for item in match:
+        ip, port = item
         proxy_li.append('%s:%s' % (ip, port))
 
     return proxy_li
 
 
-def fetch_proxy_list(page_count=1):
-    """ fetch proxy list"""
+def fetch_proxy_list():
+    """ fetch proxy list """
     proxy_li = []
-    for i in range(1, page_count + 1):
-        url = 'http://www.cnproxy.com/proxy%d.html' % i
-        content = get_page_content(url)
-        if content is None:
-            continue
-        try:
-            proxy = extract_proxy(content)
-        except:
-            logging.error('extract_proxy failed')
-            continue
-        if proxy:
-            proxy_li.extend(proxy)
+    url = 'http://free-proxy-list.net'
+    content = get_page_content(url)
+    if content is None:
+        return []
+    try:
+        proxy = extract_proxy(content)
+    except:
+        logging.error('extract_proxy failed')
+        return []
+    if proxy:
+        proxy_li.extend(proxy)
 
     return proxy_li
 
 
 def check_proxy(proxy, timeout):
+    """ check proxy """
     request = urllib2.Request('http://www.baidu.com/')
     request.set_proxy(proxy, 'http')
 
@@ -164,11 +155,13 @@ def check_proxy(proxy, timeout):
         return
 
     if response.code == 200:
-        return proxy
+        server = response.headers.getheader('server')
+        if server and 'BWS' in server:
+            return proxy
 
 
 def check_proxy_list(proxy_li, timeout=5):
-    """check proxy list"""
+    """ check proxy list """
     threadpool = ThreadPool(20)
 
     for proxy in proxy_li:
@@ -181,7 +174,7 @@ def check_proxy_list(proxy_li, timeout=5):
 
 
 def write_to_file(proxy_li, outfile):
-    """write proxy list to file"""
+    """ write proxy list to file """
     for proxy in proxy_li:
         outfile.write(proxy)
         outfile.write('\n')
@@ -213,7 +206,7 @@ def main():
 
     proxy_li = []
     if results.fetch:
-        proxy_li = fetch_proxy_list(2)
+        proxy_li = fetch_proxy_list()
     elif results.infile:
         proxy_li = [line.strip('\n') for line in results.infile]
         results.infile.close()
@@ -229,6 +222,4 @@ def main():
 
 
 if __name__ == '__main__':
-    FORMAT = '%(levelname)s %(message)s'
-    logging.basicConfig(level=logging.INFO, format=FORMAT)
     main()
