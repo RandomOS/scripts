@@ -94,13 +94,12 @@ class GoogleFetch(object):
         return response.code, response_headers, content
 
     def replace(self, content, host):
-        content = content.replace('x.push(', '(')
         content = content.replace('!google.xjs', 'null')
-        content = content.replace('google.log=', 'google.log=function(){};_log=')
-        content = content.replace('="/images/', '="https://www.sssis.com/images/')
-        content = content.replace('=\'/images/', '=\'https://www.sssis.com/images/')
-        content = content.replace('url(/images/', 'url(https://www.sssis.com/images/')
-        content = content.replace('//ssl.gstatic.com', 'https://www.sssis.com/sslgstatic')
+        content = content.replace('window.gbar.rdl()', 'null')
+        content = content.replace('="/images/', '="https://xie.lu/images/')
+        content = content.replace('=\'/images/', '=\'https://xie.lu/images/')
+        content = content.replace('url(/images/', 'url(https://xie.lu/images/')
+        content = content.replace('//ssl.gstatic.com', 'https://www.tsy123.com/tsy123gstc')
         content = re.sub(r'onmousedown=".+?"', '', content)
         content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
         content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
