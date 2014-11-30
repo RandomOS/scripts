@@ -42,7 +42,7 @@ class GoogleFetch(object):
         request.add_header('DNT', '1')
 
         try:
-            response = urllib2.urlopen(request, timeout=30)
+            response = urllib2.urlopen(request, timeout=10)
         except urllib2.HTTPError as e:
             return (e.code, None, None)
         except urllib2.URLError as e:
@@ -96,10 +96,7 @@ class GoogleFetch(object):
     def replace(self, content, host):
         content = content.replace('!google.xjs', 'null')
         content = content.replace('window.gbar.rdl()', 'null')
-        content = content.replace('="/images/', '="https://wen.lu/images/')
-        content = content.replace('=\'/images/', '=\'https://wen.lu/images/')
-        content = content.replace('url(/images/', 'url(https://wen.lu/images/')
-        content = content.replace('//ssl.gstatic.com', 'https://secure.hjc.im/!ssl.gstatic.com')
+        content = content.replace('//ssl.gstatic.com', 'https://rocky-tcp.herokuapp.com/ssl.gstatic.com')
         content = re.sub(r'onmousedown=".+?"', '', content)
         content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
         content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
