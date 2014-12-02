@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
 
 class ThreadPoolException(Exception):
 
-    """ Thread Pool Exception"""
+    """ Thread Pool Exception """
     pass
 
 
@@ -114,32 +114,43 @@ def get_page_content(url):
     return content
 
 
-def extract_proxy(content):
-    """ extract proxy """
-    proxy_li = []
-    pattern = re.compile(r'<tr><td>([\d.]+)</td><td>(\d+)</td>', re.I)
-    match = pattern.findall(content)
-    for item in match:
-        ip, port = item
-        proxy_li.append('%s:%s' % (ip, port))
-
-    return proxy_li
-
-
-def fetch_proxy_list():
-    """ fetch proxy list """
+def fetch_global_proxy_list():
+    """ fetch global proxy list """
     proxy_li = []
     url = 'http://free-proxy-list.net'
     content = get_page_content(url)
     if content is None:
         return []
     try:
-        proxy = extract_proxy(content)
+        pattern = re.compile(r'<tr><td>([\d.]+)</td><td>(\d+)</td>', re.I)
+        match = pattern.findall(content)
+        for item in match:
+            ip, port = item
+            proxy_li.append('%s:%s' % (ip, port))
     except:
         logging.error('extract_proxy failed')
         return []
-    if proxy:
-        proxy_li.extend(proxy)
+
+    return proxy_li
+
+
+def fetch_china_proxy_list():
+    """ fetch china proxy list """
+    proxy_li = []
+    url = 'http://www.xici.net.co/nt/'
+    content = get_page_content(url)
+    if content is None:
+        return []
+    try:
+        content = re.sub(r'\s+', '', content)
+        pattern = re.compile(r'<td>([\d.]+)</td><td>(\d+)</td>', re.I)
+        match = pattern.findall(content)
+        for item in match:
+            ip, port = item
+            proxy_li.append('%s:%s' % (ip, port))
+    except:
+        logging.error('extract_proxy failed')
+        return []
 
     return proxy_li
 
@@ -186,7 +197,7 @@ def echo(content):
 
 
 def main():
-    parser = argparse.ArgumentParser(version='1.0')
+    parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
 
     group.add_argument('-f', action='store_true', default=False,
@@ -206,7 +217,7 @@ def main():
 
     proxy_li = []
     if results.fetch:
-        proxy_li = fetch_proxy_list()
+        proxy_li = fetch_china_proxy_list()
     elif results.infile:
         proxy_li = [line.strip('\n') for line in results.infile]
         results.infile.close()

@@ -17,7 +17,7 @@ logger = logging.getLogger('check_google_ip')
 
 class ThreadPoolException(Exception):
 
-    """ Thread Pool Exception"""
+    """ Thread Pool Exception """
     pass
 
 
