@@ -29,18 +29,16 @@ class WorkThread(threading.Thread):
 
     def run(self):
         while True:
+            func, args, kwargs = self.__work_queue.get()
             try:
-                func, nkwargs, kwargs = self.__work_queue.get(False)
-            except Queue.Empty:
-                return
-            try:
-                ret = func(*nkwargs, **kwargs)
+                ret = func(*args, **kwargs)
             except:
                 pass
             else:
                 if ret:
                     self.__result_queue.put(ret)
-            self.__work_queue.task_done()
+            finally:
+                self.__work_queue.task_done()
 
 
 class ThreadPool(object):
@@ -56,28 +54,28 @@ class ThreadPool(object):
 
     def start(self):
         self.__start = True
-        for i in range(self.__thread_num):
+        for _ in range(self.__thread_num):
             w = WorkThread(self.__work_queue, self.__result_queue)
             w.setDaemon(True)
             w.start()
 
-    def add_job(self, func, *nkwargs, **kwargs):
-        self.__work_queue.put((func, nkwargs, kwargs))
+    def add(self, func, *args, **kwargs):
+        self.__work_queue.put((func, args, kwargs))
 
-    def wait_all(self):
+    def join(self):
         if not self.__start:
-            raise ThreadPoolException('Worker not started.')
+            raise ThreadPoolException('Worker not started')
         self.__work_queue.join()
         self.__finish = True
 
     def get_result(self):
         if not self.__finish:
-            raise ThreadPoolException('Worker not finished.')
-        li = []
+            raise ThreadPoolException('Worker not finished')
+        results = []
         while not self.__result_queue.empty():
-            ret = self.__result_queue.get(False)
-            li.append(ret)
-        return li
+            ret = self.__result_queue.get()
+            results.append(ret)
+        return results
 
 
 def get_page_content(url):
@@ -117,7 +115,7 @@ def get_page_content(url):
 def fetch_global_proxy_list():
     """ fetch global proxy list """
     proxy_li = []
-    url = 'http://free-proxy-list.net'
+    url = 'http://free-proxy-list.net/'
     content = get_page_content(url)
     if content is None:
         return []
@@ -173,15 +171,15 @@ def check_proxy(proxy, timeout):
 
 def check_proxy_list(proxy_li, timeout=5):
     """ check proxy list """
-    threadpool = ThreadPool(20)
+    pool = ThreadPool(20)
 
     for proxy in proxy_li:
-        threadpool.add_job(check_proxy, proxy, timeout)
+        pool.add(check_proxy, proxy, timeout)
 
-    threadpool.start()
-    threadpool.wait_all()
+    pool.start()
+    pool.join()
 
-    return threadpool.get_result()
+    return pool.get_result()
 
 
 def write_to_file(proxy_li, outfile):
@@ -217,7 +215,7 @@ def main():
 
     proxy_li = []
     if results.fetch:
-        proxy_li = fetch_china_proxy_list()
+        proxy_li = fetch_global_proxy_list()
     elif results.infile:
         proxy_li = [line.strip('\n') for line in results.infile]
         results.infile.close()

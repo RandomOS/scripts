@@ -32,18 +32,16 @@ class WorkThread(threading.Thread):
 
     def run(self):
         while True:
+            func, args, kwargs = self.__work_queue.get()
             try:
-                func, nkwargs, kwargs = self.__work_queue.get(False)
-            except Queue.Empty:
-                return
-            try:
-                ret = func(*nkwargs, **kwargs)
+                ret = func(*args, **kwargs)
             except:
                 pass
             else:
                 if ret:
                     self.__result_queue.put(ret)
-            self.__work_queue.task_done()
+            finally:
+                self.__work_queue.task_done()
 
 
 class ThreadPool(object):
@@ -59,28 +57,28 @@ class ThreadPool(object):
 
     def start(self):
         self.__start = True
-        for i in range(self.__thread_num):
+        for _ in range(self.__thread_num):
             w = WorkThread(self.__work_queue, self.__result_queue)
             w.setDaemon(True)
             w.start()
 
-    def add_job(self, func, *nkwargs, **kwargs):
-        self.__work_queue.put((func, nkwargs, kwargs))
+    def add(self, func, *args, **kwargs):
+        self.__work_queue.put((func, args, kwargs))
 
-    def wait_all(self):
+    def join(self):
         if not self.__start:
-            raise ThreadPoolException('Worker not started.')
+            raise ThreadPoolException('Worker not started')
         self.__work_queue.join()
         self.__finish = True
 
     def get_result(self):
         if not self.__finish:
-            raise ThreadPoolException('Worker not finished.')
-        li = []
+            raise ThreadPoolException('Worker not finished')
+        results = []
         while not self.__result_queue.empty():
-            ret = self.__result_queue.get(False)
-            li.append(ret)
-        return li
+            ret = self.__result_queue.get()
+            results.append(ret)
+        return results
 
 
 def timefunc():
@@ -162,15 +160,15 @@ def main():
     ip_list = get_google_ip_list(ip_data)
 
     print 'check google ip list...'
-    threadpool = ThreadPool(40)
+    pool = ThreadPool(40)
 
     for ip in ip_list:
-        threadpool.add_job(check_google_ip, ip, opts.use_https)
+        pool.add(check_google_ip, ip, opts.use_https)
 
-    threadpool.start()
-    threadpool.wait_all()
+    pool.start()
+    pool.join()
 
-    ret_li = threadpool.get_result()
+    ret_li = pool.get_result()
 
     if opts.out_file:
         f = opts.out_file
