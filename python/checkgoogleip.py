@@ -32,8 +32,11 @@ class WorkThread(threading.Thread):
 
     def run(self):
         while True:
-            func, args, kwargs = self.__work_queue.get()
+            content = self.__work_queue.get()
+            if isinstance(content, str) and content == 'quit':
+                break
             try:
+                func, args, kwargs = content
                 ret = func(*args, **kwargs)
             except:
                 pass
@@ -58,9 +61,9 @@ class ThreadPool(object):
     def start(self):
         self.__start = True
         for _ in range(self.__thread_num):
-            w = WorkThread(self.__work_queue, self.__result_queue)
-            w.setDaemon(True)
-            w.start()
+            worker = WorkThread(self.__work_queue, self.__result_queue)
+            worker.setDaemon(True)
+            worker.start()
 
     def add(self, func, *args, **kwargs):
         self.__work_queue.put((func, args, kwargs))
@@ -70,6 +73,12 @@ class ThreadPool(object):
             raise ThreadPoolException('Worker not started')
         self.__work_queue.join()
         self.__finish = True
+
+    def close(self):
+        if not self.__finish:
+            raise ThreadPoolException('Worker not finished')
+        for _ in xrange(self.__thread_num):
+            self.__work_queue.put('quit')
 
     def get_result(self):
         if not self.__finish:
@@ -167,6 +176,7 @@ def main():
 
     pool.start()
     pool.join()
+    pool.close()
 
     ret_li = pool.get_result()
 

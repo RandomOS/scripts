@@ -265,6 +265,10 @@ class ThreadedHTTPServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer)
     - catches socket.timeout and socket.error exceptions (raised from RequestHandler)
     """
 
+    request_queue_size = 100
+    allow_reuse_address = True
+    daemon_threads = True
+
     def __init__(self, *args):
         BaseHTTPServer.HTTPServer.__init__(self, *args)
 
@@ -275,14 +279,14 @@ class ThreadedHTTPServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer)
         """
         try:
             self.finish_request(request, client_address)
-            self.shutdown_request(request)
+            self.close_request(request)
         except socket.timeout:
             sys.stderr.write('Timeout during processing of request from %s\n' % str(client_address))
         except socket.error, e:
             sys.stderr.write('%s during processing of request from %s\n' % (str(e), str(client_address)))
         except:
             self.handle_error(request, client_address)
-            self.shutdown_request(request)
+            self.close_request(request)
 
 
 def main():

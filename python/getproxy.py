@@ -29,8 +29,11 @@ class WorkThread(threading.Thread):
 
     def run(self):
         while True:
-            func, args, kwargs = self.__work_queue.get()
+            content = self.__work_queue.get()
+            if isinstance(content, str) and content == 'quit':
+                break
             try:
+                func, args, kwargs = content
                 ret = func(*args, **kwargs)
             except:
                 pass
@@ -55,9 +58,9 @@ class ThreadPool(object):
     def start(self):
         self.__start = True
         for _ in range(self.__thread_num):
-            w = WorkThread(self.__work_queue, self.__result_queue)
-            w.setDaemon(True)
-            w.start()
+            worker = WorkThread(self.__work_queue, self.__result_queue)
+            worker.setDaemon(True)
+            worker.start()
 
     def add(self, func, *args, **kwargs):
         self.__work_queue.put((func, args, kwargs))
@@ -67,6 +70,12 @@ class ThreadPool(object):
             raise ThreadPoolException('Worker not started')
         self.__work_queue.join()
         self.__finish = True
+
+    def close(self):
+        if not self.__finish:
+            raise ThreadPoolException('Worker not finished')
+        for _ in xrange(self.__thread_num):
+            self.__work_queue.put('quit')
 
     def get_result(self):
         if not self.__finish:
@@ -112,43 +121,32 @@ def get_page_content(url):
     return content
 
 
-def fetch_global_proxy_list():
-    """ fetch global proxy list """
+def extract_proxy(content):
+    """ extract proxy """
     proxy_li = []
-    url = 'http://free-proxy-list.net/'
-    content = get_page_content(url)
-    if content is None:
-        return []
-    try:
-        pattern = re.compile(r'<tr><td>([\d.]+)</td><td>(\d+)</td>', re.I)
-        match = pattern.findall(content)
-        for item in match:
-            ip, port = item
-            proxy_li.append('%s:%s' % (ip, port))
-    except:
-        logging.error('extract_proxy failed')
-        return []
+    pattern = re.compile(r'<tr><td>([\d.]+)</td><td>(\d+)</td>', re.I)
+    match = pattern.findall(content)
+    for item in match:
+        ip, port = item
+        proxy_li.append('%s:%s' % (ip, port))
 
     return proxy_li
 
 
-def fetch_china_proxy_list():
-    """ fetch china proxy list """
+def fetch_proxy_list():
+    """ fetch proxy list """
     proxy_li = []
-    url = 'http://www.xici.net.co/nt/'
+    url = 'http://free-proxy-list.net'
     content = get_page_content(url)
     if content is None:
         return []
     try:
-        content = re.sub(r'\s+', '', content)
-        pattern = re.compile(r'<td>([\d.]+)</td><td>(\d+)</td>', re.I)
-        match = pattern.findall(content)
-        for item in match:
-            ip, port = item
-            proxy_li.append('%s:%s' % (ip, port))
+        proxy = extract_proxy(content)
     except:
         logging.error('extract_proxy failed')
         return []
+    if proxy:
+        proxy_li.extend(proxy)
 
     return proxy_li
 
@@ -178,6 +176,7 @@ def check_proxy_list(proxy_li, timeout=5):
 
     pool.start()
     pool.join()
+    pool.close()
 
     return pool.get_result()
 
@@ -195,7 +194,7 @@ def echo(content):
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(version='1.0')
     group = parser.add_mutually_exclusive_group(required=True)
 
     group.add_argument('-f', action='store_true', default=False,
@@ -215,7 +214,7 @@ def main():
 
     proxy_li = []
     if results.fetch:
-        proxy_li = fetch_global_proxy_list()
+        proxy_li = fetch_proxy_list()
     elif results.infile:
         proxy_li = [line.strip('\n') for line in results.infile]
         results.infile.close()
