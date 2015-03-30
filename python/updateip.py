@@ -120,16 +120,19 @@ def post_to_dweet(thing, data):
 
 def main():
     global g_wan_ip
+    interval = 300
+    timestamp = 0
     while True:
         ip = get_wan_ip()
-        if ip and g_wan_ip != ip:
+        if ip and (g_wan_ip != ip or int(time.time()) - timestamp > 24 * 60 * 60):
             g_wan_ip = ip
+            timestamp = int(time.time())
             data = {
-                'timestamp': int(time.time()),
+                'timestamp': timestamp,
                 'ip': ip
             }
             post_to_dweet('z6pmpwlz', data)
-        time.sleep(300)
+        time.sleep(interval)
 
 
 if __name__ == '__main__':
