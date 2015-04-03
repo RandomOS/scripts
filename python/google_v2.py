@@ -15,7 +15,7 @@ import SocketServer
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 logger = logging.getLogger('google')
 
-GOOGLE_IP = '210.242.125.83'
+GOOGLE_HOST = 'www.google.com'
 
 
 class GoogleFetch(object):
@@ -23,10 +23,16 @@ class GoogleFetch(object):
     """ GoogleFetch """
 
     def __init__(self):
-        self.google_ip = GOOGLE_IP
+        self.google_host = GOOGLE_HOST
+        self.domain_list = ['ssl.gstatic.com', 'www.gstatic.com']
 
     def fetch(self, path, headers):
-        url = 'http://%s%s' % (self.google_ip, path)
+        url = 'http://%s%s' % (self.google_host, path)
+        skip = False
+        for domain in self.domain_list:
+            if path.startswith('/%s/' % domain):
+                url = 'http://%s' % path[1:]
+                skip = True
         request = urllib2.Request(url)
         if headers['accept']:
             request.add_header('Accept', headers['accept'])
@@ -77,7 +83,7 @@ class GoogleFetch(object):
             finally:
                 gz_file.close()
 
-        if response.code == 200:
+        if not skip and response.code == 200:
             text_types = ['text/html']
             for text_type in text_types:
                 if content_type.startswith(text_type):
@@ -96,12 +102,12 @@ class GoogleFetch(object):
     def replace(self, content, host):
         content = content.replace('!google.xjs', 'null')
         content = content.replace('window.gbar.rdl()', 'null')
-        content = content.replace('//ssl.gstatic.com', '//gg.randomk.space/ssl.gstatic.com')
-        content = content.replace('//www.gstatic.com', '//gg.randomk.space/www.gstatic.com')
+        content = content.replace('//ssl.gstatic.com', '//%s/ssl.gstatic.com' % host)
+        content = content.replace('//www.gstatic.com', '//%s/www.gstatic.com' % host)
         content = re.sub(r'onmousedown=".+?"', '', content)
         content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
         content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
-        content = re.sub(r'(https?:)?//%s' % self.google_ip.replace('.', r'\.'), '//%s' % host, content)
+        content = re.sub(r'(https?:)?//%s' % self.google_host.replace('.', r'\.'), '//%s' % host, content)
         return content
 
 
