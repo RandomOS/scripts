@@ -13,7 +13,7 @@ import BaseHTTPServer
 import SocketServer
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-logger = logging.getLogger('google')
+logger = logging.getLogger('google_v2')
 
 GOOGLE_HOST = 'www.google.com'
 
@@ -89,6 +89,8 @@ class GoogleFetch(object):
                 if content_type.startswith(text_type):
                     content = self.replace(content, headers['host'])
                     break
+            if path.startswith('/xjs/_/js/') and content_type.startswith('text/javascript'):
+                content = content.replace('//www.google.com/textinputassistant', '/textinputassistant')
 
         response_headers = {
             'content_type': content_type,
@@ -100,14 +102,12 @@ class GoogleFetch(object):
         return response.code, response_headers, content
 
     def replace(self, content, host):
-        content = content.replace('!google.xjs', 'null')
+        #content = content.replace('!google.xjs', 'null')
         content = content.replace('window.gbar.rdl()', 'null')
-        content = content.replace('//ssl.gstatic.com', '//%s/ssl.gstatic.com' % host)
-        content = content.replace('//www.gstatic.com', '//%s/www.gstatic.com' % host)
+        content = content.replace('//ssl.gstatic.com/', '/ssl.gstatic.com/')
+        content = content.replace('//www.gstatic.com/', '/www.gstatic.com/')
         content = re.sub(r'onmousedown=".+?"', '', content)
-        content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
-        content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
-        content = re.sub(r'(https?:)?//%s' % self.google_host.replace('.', r'\.'), '//%s' % host, content)
+        content = re.sub(r'(https?:)?//%s/' % self.google_host.replace('.', '\.'), '/', content)
         return content
 
 

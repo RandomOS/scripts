@@ -15,7 +15,7 @@ import SocketServer
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
 logger = logging.getLogger('google')
 
-GOOGLE_IP = '210.242.125.83'
+GOOGLE_IP = '210.242.125.86'
 
 
 class GoogleFetch(object):
@@ -96,12 +96,10 @@ class GoogleFetch(object):
     def replace(self, content, host):
         content = content.replace('!google.xjs', 'null')
         content = content.replace('window.gbar.rdl()', 'null')
-        content = content.replace('//ssl.gstatic.com', '//gg.randomk.space/ssl.gstatic.com')
-        content = content.replace('//www.gstatic.com', '//gg.randomk.space/www.gstatic.com')
+        content = content.replace('//ssl.gstatic.com/', '//gg.randomk.space/ssl.gstatic.com/')
+        content = content.replace('//www.gstatic.com/', '//gg.randomk.space/www.gstatic.com/')
         content = re.sub(r'onmousedown=".+?"', '', content)
-        content = re.sub(r'(https?:)?//fonts\.googleapis\.com', 'https://fonts.lug.ustc.edu.cn', content)
-        content = re.sub(r'(https?:)?//www\.google\.com', '//%s' % host, content)
-        content = re.sub(r'(https?:)?//%s' % self.google_ip.replace('.', r'\.'), '//%s' % host, content)
+        content = re.sub(r'(https?:)?//%s/' % self.google_host.replace('.', '\.'), '/', content)
         return content
 
 
