@@ -9,10 +9,6 @@ import logging
 import logging.handlers
 import SocketServer
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR = os.path.join(BASE_DIR, 'logs')
-LOG_FILE_PATH = os.path.join(LOG_DIR, 'syslog.log')
-
 logger = logging.getLogger('syslog_server')
 
 
@@ -42,11 +38,15 @@ def main():
         parser.print_help()
         sys.exit()
 
-    if not os.path.exists(LOG_DIR):
-        os.mkdir(LOG_DIR)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    log_dir = os.path.join(base_dir, 'logs')
+    log_file_path = os.path.join(log_dir, 'syslog.log')
 
-    handler = logging.handlers.RotatingFileHandler(filename=LOG_FILE_PATH, mode='a',
-                                                   maxBytes=1024 * 1024, backupCount=5, encoding='utf-8')
+    if not os.path.exists(log_dir):
+        os.mkdir(log_dir)
+
+    handler = logging.handlers.RotatingFileHandler(filename=log_file_path, mode='a',
+                                                   maxBytes=10 * 1024 * 1024, backupCount=5, encoding='utf-8')
     formatter = logging.Formatter(fmt='%(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
