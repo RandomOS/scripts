@@ -131,7 +131,10 @@ def main():
                 'timestamp': timestamp,
                 'ip': ip
             }
-            post_to_dweet('z6pmpwlz', data)
+            for _ in xrange(3):
+                succeeded = post_to_dweet('z6pmpwlz', data)
+                if succeeded:
+                    break
         time.sleep(interval)
 
 
