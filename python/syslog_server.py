@@ -20,8 +20,10 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         data = bytes.decode(self.packet.strip('\x00'))
-        data = re.sub(r'^<\d+>', '', data)
-        logger.info(data)
+        m = re.search(r'^<\d+>', data)
+        if m:
+            data = data.replace(m.group(0), '')
+            logger.info(data)
 
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
