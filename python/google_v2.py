@@ -89,8 +89,6 @@ class GoogleFetch(object):
                 if content_type.startswith(text_type):
                     content = self.replace(content, headers['host'])
                     break
-            if path.startswith('/xjs/_/js/') and content_type.startswith('text/javascript'):
-                content = content.replace('//www.google.com/textinputassistant', '/textinputassistant')
 
         response_headers = {
             'content_type': content_type,
@@ -102,7 +100,7 @@ class GoogleFetch(object):
         return response.code, response_headers, content
 
     def replace(self, content, host):
-        #content = content.replace('!google.xjs', 'null')
+        content = content.replace('!google.xjs', 'null')
         content = content.replace('window.gbar.rdl()', 'null')
         content = content.replace('//ssl.gstatic.com/', '/ssl.gstatic.com/')
         content = content.replace('//www.gstatic.com/', '/www.gstatic.com/')
