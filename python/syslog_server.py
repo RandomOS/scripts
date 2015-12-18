@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import re
 import sys
 import optparse
@@ -16,7 +15,6 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
 
     def setup(self):
         self.packet, self.socket = self.request
-        self.ipaddress = self.client_address[0]
 
     def handle(self):
         data = bytes.decode(self.packet.strip('\x00'))
@@ -32,23 +30,28 @@ class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
 
 def main():
     parser = optparse.OptionParser()
-    parser.add_option('-l', dest='ip', help='ip address to bind to')
-    parser.add_option('-p', type='int', dest='port', default=514, help='port to bind to')
+    parser.add_option('-l', dest='ip', default='127.0.0.1', help='ip address to bind to, default: 127.0.0.1')
+    parser.add_option('-p', dest='port', type='int', default=5140, help='port to bind to, default: 5140')
+    parser.add_option('-f', dest='log_file_path', help='log file path')
+    parser.add_option('-m', dest='max_size', type='int', default=100, help='log file max size (MB), default: 100')
+    parser.add_option('-c', dest='backup_count', type='int', default=5, help='log file backup count, default: 5')
     opts, args = parser.parse_args()
 
-    if not (opts.ip and opts.port):
+    if not opts.log_file_path:
         parser.print_help()
         sys.exit()
 
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    log_dir = os.path.join(base_dir, 'logs')
-    log_file_path = os.path.join(log_dir, 'syslog.log')
+    log_file_path = opts.log_file_path
+    max_bytes = opts.max_size * 1024 * 1024
+    backup_count = opts.backup_count
 
-    if not os.path.exists(log_dir):
-        os.mkdir(log_dir)
-
-    handler = logging.handlers.RotatingFileHandler(filename=log_file_path, mode='a',
-                                                   maxBytes=10 * 1024 * 1024, backupCount=5, encoding='utf-8')
+    handler = logging.handlers.RotatingFileHandler(
+        filename=log_file_path,
+        maxBytes=max_bytes,
+        backupCount=backup_count,
+        mode='a',
+        encoding='utf-8'
+    )
     formatter = logging.Formatter(fmt='%(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
