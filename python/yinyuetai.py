@@ -138,7 +138,7 @@ def get_lastest_id():
         url = 'http://mv.yinyuetai.com/all?sort=pubdate'
         r = s.get(url, timeout=10)
         html = r.content
-        regex_str = r'http:\/\/v.yinyuetai.com\/video\/(\d+)'
+        regex_str = r'http://v\.yinyuetai\.com/video/(\d+)'
         pattern = re.compile(regex_str)
         lastest_id = int(max(pattern.findall(html)))
     except:
