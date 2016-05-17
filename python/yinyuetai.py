@@ -9,7 +9,7 @@ import requests
 import os
 import re
 import sys
-import time
+import timeit
 import sqlite3
 
 g_sql = """
@@ -119,17 +119,12 @@ def finish():
 
 
 def timer(f):
-    if os.name == 'nt':
-        timefunc = time.clock
-    else:
-        timefunc = time.time
-
     def wrapper(*args, **kargs):
-        now = timefunc()
+        now = timeit.default_timer()
         try:
             return f(*args, **kargs)
         finally:
-            sys.stdout.write('time delta: %.2fs\n' % (timefunc() - now))
+            sys.stdout.write('time delta: %.2fs\n' % (timeit.default_timer() - now))
     return wrapper
 
 
