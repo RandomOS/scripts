@@ -9,9 +9,9 @@ import urllib2
 import logging
 
 logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('updateip')
 
-g_wan_ip = ""
+g_wan_ip = ''
 
 
 def url_request(url, data=None, headers=None, proxy=None, timeout=10):
