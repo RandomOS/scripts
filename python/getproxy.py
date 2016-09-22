@@ -210,21 +210,21 @@ def main():
         parser.print_help()
         exit()
 
-    results = parser.parse_args()
+    opts = parser.parse_args()
 
     proxy_li = []
-    if results.fetch:
+    if opts.fetch:
         proxy_li = fetch_proxy_list()
-    elif results.infile:
-        proxy_li = [line.strip('\n') for line in results.infile]
-        results.infile.close()
+    elif opts.infile:
+        proxy_li = [line.strip('\n') for line in opts.infile]
+        opts.infile.close()
 
-    if results.check:
+    if opts.check:
         proxy_li = check_proxy_list(proxy_li)
 
-    if results.outfile:
-        write_to_file(proxy_li, results.outfile)
-        results.outfile.close()
+    if opts.outfile:
+        write_to_file(proxy_li, opts.outfile)
+        opts.outfile.close()
     else:
         map(echo, proxy_li)
 
