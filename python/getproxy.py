@@ -136,7 +136,7 @@ def extract_proxy(content):
 def fetch_proxy_list():
     """ fetch proxy list """
     proxy_li = []
-    url = 'http://free-proxy-list.net'
+    url = 'https://free-proxy-list.net/'
     content = get_page_content(url)
     if content is None:
         return []
