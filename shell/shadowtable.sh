@@ -4,11 +4,7 @@
 iptables -t nat -N SHADOWSOCKS
 
 # Ignore your shadowsocks server's addresses
-iptables -t nat -A SHADOWSOCKS -d 104.128.85.197 -j RETURN
-iptables -t nat -A SHADOWSOCKS -d 173.254.219.161 -j RETURN
-iptables -t nat -A SHADOWSOCKS -d 198.35.44.91 -j RETURN
-iptables -t nat -A SHADOWSOCKS -d 1.234.69.100 -j RETURN
-iptables -t nat -A SHADOWSOCKS -d 1.234.69.211 -j RETURN
+iptables -t nat -A SHADOWSOCKS -d 104.128.91.69 -j RETURN
 
 # Ignore LANs IP address
 iptables -t nat -A SHADOWSOCKS -d 0.0.0.0/8 -j RETURN
