@@ -286,8 +286,6 @@ class ThreadedHTTPServer(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer)
             self.close_request(request)
         except socket.timeout:
             sys.stderr.write('Timeout during processing of request from %s\n' % str(client_address))
-        except socket.error, e:
-            sys.stderr.write('%s during processing of request from %s\n' % (str(e), str(client_address)))
         except:
             self.handle_error(request, client_address)
             self.close_request(request)
