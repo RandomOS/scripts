@@ -238,7 +238,6 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             short, _ = '???', '???'
         if message is None:
             message = short
-        self.log_error('code %d, message %s', code, message)
         self.send_response(code, message)
         content = '%d, %s' % (code, message)
         content_type = 'text/plain; charset=utf-8'
