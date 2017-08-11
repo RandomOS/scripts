@@ -48,6 +48,7 @@ class GoogleFetch(object):
         request.add_header('DNT', '1')
 
         try:
+
             response = urllib2.urlopen(request, timeout=10)
         except urllib2.HTTPError as e:
             return (e.code, None, None)
@@ -101,7 +102,6 @@ class GoogleFetch(object):
 
     def replace(self, content, host):
         content = content.replace('!google.xjs', 'null')
-        content = content.replace('window.gbar.rdl()', 'null')
         content = content.replace('//ssl.gstatic.com/', '/ssl.gstatic.com/')
         content = content.replace('//www.gstatic.com/', '/www.gstatic.com/')
         content = re.sub(r'onmousedown=".+?"', '', content)
