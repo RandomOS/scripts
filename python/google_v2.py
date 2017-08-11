@@ -105,7 +105,7 @@ class GoogleFetch(object):
         content = content.replace('//ssl.gstatic.com/', '/ssl.gstatic.com/')
         content = content.replace('//www.gstatic.com/', '/www.gstatic.com/')
         content = re.sub(r'onmousedown=".+?"', '', content)
-        content = re.sub(r'(https?:)?//%s/' % self.google_host.replace('.', '\.'), '/', content)
+        content = re.sub(r'(https?:)?//%s/' % self.google_host, '/', content)
         return content
 
 
@@ -127,7 +127,10 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """ process added """
         if self.path == '/robots.txt':
             self.send_response(200)
-            content = 'User-agent: *\nDisallow: /'
+            content = (
+                'User-agent: *\n',
+                'Disallow: /\n'
+            )
             self.send_header('Content-Type', 'text/plain; charset=utf-8')
             self.send_header('Content-Length', str(len(content)))
             self.end_headers()
@@ -136,7 +139,7 @@ class TimeoutHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             return
 
         accept = self.headers.getheader('accept')
-        accept_encoding = self.headers.getheader('accept-encoding')
+        accept_encoding = 'gzip'
         accept_language = self.headers.getheader('accept-language')
         host = self.headers.getheader('Host')
         if_modified_since = self.headers.getheader('if-modified-since')
