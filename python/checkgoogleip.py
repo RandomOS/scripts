@@ -1,101 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import re
 import sys
-import time
+import timeit
 import urllib2
 import logging
-import threading
-import Queue
 import argparse
+from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
 
-logging.basicConfig(level=logging.DEBUG, format='%(name)s: %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] "%(message)s"')
 logger = logging.getLogger('check_google_ip')
-
-
-class ThreadPoolException(Exception):
-
-    """ Thread Pool Exception """
-    pass
-
-
-class WorkThread(threading.Thread):
-
-    """ WorkThread """
-
-    def __init__(self, work_queue, result_queue):
-        super(WorkThread, self).__init__()
-        self.__work_queue = work_queue
-        self.__result_queue = result_queue
-
-    def run(self):
-        while True:
-            content = self.__work_queue.get()
-            if isinstance(content, str) and content == 'quit':
-                break
-            try:
-                func, args, kwargs = content
-                ret = func(*args, **kwargs)
-            except:
-                pass
-            else:
-                if ret:
-                    self.__result_queue.put(ret)
-            finally:
-                self.__work_queue.task_done()
-
-
-class ThreadPool(object):
-
-    """ ThreadPoolManager """
-
-    def __init__(self, thread_num=10):
-        self.__thread_num = thread_num
-        self.__work_queue = Queue.Queue()
-        self.__result_queue = Queue.Queue()
-        self.__start = False
-        self.__finish = False
-
-    def start(self):
-        self.__start = True
-        for _ in range(self.__thread_num):
-            worker = WorkThread(self.__work_queue, self.__result_queue)
-            worker.setDaemon(True)
-            worker.start()
-
-    def add(self, func, *args, **kwargs):
-        self.__work_queue.put((func, args, kwargs))
-
-    def join(self):
-        if not self.__start:
-            raise ThreadPoolException('Worker not started')
-        self.__work_queue.join()
-        self.__finish = True
-
-    def close(self):
-        if not self.__finish:
-            raise ThreadPoolException('Worker not finished')
-        for _ in xrange(self.__thread_num):
-            self.__work_queue.put('quit')
-
-    def get_result(self):
-        if not self.__finish:
-            raise ThreadPoolException('Worker not finished')
-        results = []
-        while not self.__result_queue.empty():
-            ret = self.__result_queue.get()
-            results.append(ret)
-        return results
-
-
-def timefunc():
-    """ time function """
-    if os.name == 'nt':
-        return time.clock()
-    else:
-        return time.time()
 
 
 def get_google_ip_list(ip_data):
@@ -115,17 +31,14 @@ def get_google_ip_list(ip_data):
 
 def check_google_ip(ip, use_https):
     """ check google ip """
-    start = timefunc()
+    start = timeit.default_timer()
     protocol = 'https' if use_https else 'http'
     url = '%s://%s/' % (protocol, ip)
     request = urllib2.Request(url)
     request.get_method = lambda: 'HEAD'
     request.add_header('Accept', 'text/html,application/xhtml+xml')
     request.add_header('Connection', 'close')
-    request.add_header('User-Agent', 'Mozilla/5.0 '
-                       '(Windows NT 6.3; rv:30.0) Gecko/20140401 Firefox/30.0')
-
-    # request.set_proxy('127.0.0.1:8888', 'http')
+    request.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.3; rv:30.0) Gecko/20140401 Firefox/30.0')
 
     try:
         response = urllib2.urlopen(request, timeout=10)
@@ -139,7 +52,7 @@ def check_google_ip(ip, use_https):
         logger.error('Error: %s %s', e, url)
         return
 
-    end = timefunc()
+    end = timeit.default_timer()
     duration = int((end - start) * 1000)
 
     if response.code == 200:
@@ -170,27 +83,23 @@ def main():
 
     print 'check google ip list...'
     pool = ThreadPool(40)
-
-    for ip in ip_list:
-        pool.add(check_google_ip, ip, opts.use_https)
-
-    pool.start()
-    pool.join()
-    pool.close()
-
-    ret_li = pool.get_result()
+    result = pool.map(partial(check_google_ip, use_https=opts.use_https), ip_list)
+    result = [item for item in result if item]
 
     if opts.out_file:
         f = opts.out_file
     else:
         f = open('google.txt', 'w')
 
-    ret_li.sort(key=lambda x: x[1])
-    for ip, duration in ret_li:
+    result.sort(key=lambda x: x[1])
+    for ip, duration in result:
         f.write('%-15s  %dms\n' % (ip, duration))
     f.close()
     print 'finish.'
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print 'quit'

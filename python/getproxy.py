@@ -5,86 +5,12 @@ import re
 import sys
 import urllib2
 import logging
-import threading
-import Queue
 import argparse
+from functools import partial
+from multiprocessing.dummy import Pool as ThreadPool
 
-logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
-
-
-class ThreadPoolException(Exception):
-
-    """ Thread Pool Exception """
-    pass
-
-
-class WorkThread(threading.Thread):
-
-    """ WorkThread """
-
-    def __init__(self, work_queue, result_queue):
-        super(WorkThread, self).__init__()
-        self.__work_queue = work_queue
-        self.__result_queue = result_queue
-
-    def run(self):
-        while True:
-            content = self.__work_queue.get()
-            if isinstance(content, str) and content == 'quit':
-                break
-            try:
-                func, args, kwargs = content
-                ret = func(*args, **kwargs)
-            except:
-                pass
-            else:
-                if ret:
-                    self.__result_queue.put(ret)
-            finally:
-                self.__work_queue.task_done()
-
-
-class ThreadPool(object):
-
-    """ ThreadPoolManager """
-
-    def __init__(self, thread_num=10):
-        self.__thread_num = thread_num
-        self.__work_queue = Queue.Queue()
-        self.__result_queue = Queue.Queue()
-        self.__start = False
-        self.__finish = False
-
-    def start(self):
-        self.__start = True
-        for _ in range(self.__thread_num):
-            worker = WorkThread(self.__work_queue, self.__result_queue)
-            worker.setDaemon(True)
-            worker.start()
-
-    def add(self, func, *args, **kwargs):
-        self.__work_queue.put((func, args, kwargs))
-
-    def join(self):
-        if not self.__start:
-            raise ThreadPoolException('Worker not started')
-        self.__work_queue.join()
-        self.__finish = True
-
-    def close(self):
-        if not self.__finish:
-            raise ThreadPoolException('Worker not finished')
-        for _ in xrange(self.__thread_num):
-            self.__work_queue.put('quit')
-
-    def get_result(self):
-        if not self.__finish:
-            raise ThreadPoolException('Worker not finished')
-        results = []
-        while not self.__result_queue.empty():
-            ret = self.__result_queue.get()
-            results.append(ret)
-        return results
+logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] %(levelname)s [%(name)s:%(lineno)d] "%(message)s"')
+logger = logging.getLogger('getproxy')
 
 
 def get_page_content(url):
@@ -93,31 +19,29 @@ def get_page_content(url):
     request.add_header('Accept', 'text/html')
     request.add_header('Connection', 'close')
     request.add_header('DNT', '1')
-    request.add_header('User-Agent', 'Mozilla/5.0 '
-                       '(Windows NT 7.0; rv:27.0) Firefox/27.0')
+    request.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 7.0; rv:27.0) Firefox/27.0')
 
     try:
-        response = urllib2.urlopen(request, timeout=10)
-    except:
-        logging.error('urlopen %s', url)
+        r = urllib2.urlopen(request, timeout=10)
+    except Exception as e:
+        logger.error('urlopen %s', url)
         return
 
-    content_type = response.headers.get('Content-Type')
+    content_type = r.headers.get('Content-Type')
     if not content_type:
-        response.close()
+        r.close()
         return
     if content_type.find('text/html') == -1:
-        response.close()
+        r.close()
         return
 
     try:
-        content = response.read()
-    except:
-        logging.error('read %s', url)
+        content = r.read()
+    except Exception as e:
+        logger.error('read %s', url)
         return
     finally:
-        response.close()
-
+        r.close()
     return content
 
 
@@ -129,7 +53,6 @@ def extract_proxy(content):
     for item in match:
         ip, port = item
         proxy_li.append('%s:%s' % (ip, port))
-
     return proxy_li
 
 
@@ -142,12 +65,11 @@ def fetch_proxy_list():
         return []
     try:
         proxy = extract_proxy(content)
-    except:
-        logging.error('extract_proxy failed')
+    except Exception as e:
+        logger.error('extract_proxy failed')
         return []
     if proxy:
         proxy_li.extend(proxy)
-
     return proxy_li
 
 
@@ -157,12 +79,12 @@ def check_proxy(proxy, timeout):
     request.set_proxy(proxy, 'http')
 
     try:
-        response = urllib2.urlopen(request, timeout=timeout)
-    except:
+        r = urllib2.urlopen(request, timeout=timeout)
+    except Exception as e:
         return
 
-    if response.code == 200:
-        server = response.headers.getheader('server')
+    if r.code == 200:
+        server = r.headers.getheader('server')
         if server and 'BWS' in server:
             return proxy
 
@@ -170,15 +92,9 @@ def check_proxy(proxy, timeout):
 def check_proxy_list(proxy_li, timeout=5):
     """ check proxy list """
     pool = ThreadPool(20)
-
-    for proxy in proxy_li:
-        pool.add(check_proxy, proxy, timeout)
-
-    pool.start()
-    pool.join()
-    pool.close()
-
-    return pool.get_result()
+    result = pool.map(partial(check_proxy, timeout=timeout), proxy_li)
+    result = [item for item in result if item]
+    return result
 
 
 def write_to_file(proxy_li, outfile):
@@ -230,4 +146,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print 'quit'
