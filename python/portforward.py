@@ -7,12 +7,14 @@ import threading
 import logging
 import optparse
 
+logging.basicConfig(level=logging.DEBUG, format='%(name)-11s: %(message)s')
+logger = logging.getLogger('portforward')
+
 
 class PipeThread(threading.Thread):
 
     def __init__(self, source_fd, target_fd):
         super(PipeThread, self).__init__()
-        self.logger = logging.getLogger('PipeThread')
         self.source_fd = source_fd
         self.target_fd = target_fd
         self.source_addr = self.source_fd.getpeername()
@@ -22,25 +24,24 @@ class PipeThread(threading.Thread):
         while True:
             try:
                 data = self.source_fd.recv(4096)
-                if len(data) > 0:
-                    self.logger.debug('read  %04i from %s:%d', len(data),
-                                      self.source_addr[0], self.source_addr[1])
-                    sent = self.target_fd.send(data)
-                    self.logger.debug('write %04i to   %s:%d', sent,
-                                      self.target_addr[0], self.target_addr[1])
-                else:
+                if not data:
                     break
-            except socket.error:
+                logger.debug('read  %04i from %s:%d', len(data), self.source_addr[0], self.source_addr[1])
+                sent = self.target_fd.send(data)
+                logger.debug('write %04i to   %s:%d', sent, self.target_addr[0], self.target_addr[1])
+            except socket.error as e:
                 break
-        self.logger.debug('connection %s:%d is closed.', self.source_addr[0], self.source_addr[1])
-        self.logger.debug('connection %s:%d is closed.', self.target_addr[0], self.target_addr[1])
-        self.source_fd.close()
-        self.target_fd.close()
+            except Exception as e:
+                logger.error('unknown error, e: %s', e)
+                break
+        logger.debug('connection %s:%d is closed.', self.source_addr[0], self.source_addr[1])
+        self.source_fd.shutdown(socket.SHUT_RD)
+        self.target_fd.shutdown(socket.SHUT_WR)
 
 
 class Forwarder(object):
 
-    def __init__(self, ip, port, remoteip, remoteport, backlog=5):
+    def __init__(self, ip, port, remoteip, remoteport, backlog):
         self.remoteip = remoteip
         self.remoteport = remoteport
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -50,13 +51,13 @@ class Forwarder(object):
 
     def run(self):
         while True:
-            client_fd, client_addr = self.sock.accept()
+            source_fd, source_addr = self.sock.accept()
             target_fd = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             target_fd.connect((self.remoteip, self.remoteport))
 
             threads = [
-                PipeThread(client_fd, target_fd),
-                PipeThread(target_fd, client_fd)
+                PipeThread(source_fd, target_fd),
+                PipeThread(target_fd, source_fd)
             ]
 
             for t in threads:
@@ -72,7 +73,7 @@ def main():
     parser.add_option('-l', '--local-ip', dest='local_ip', help='Local IP address to bind to')
     parser.add_option('-p', '--local-port', type='int', dest='local_port', help='Local port to bind to')
     parser.add_option('-r', '--remote-ip', dest='remote_ip', help='Local IP address to bind to')
-    parser.add_option('-P', '--remote-port', type='int', dest='remote_port',  help='Remote port to bind to')
+    parser.add_option('-P', '--remote-port', type='int', dest='remote_port', help='Remote port to bind to')
     parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='verbose')
     opts, args = parser.parse_args()
 
@@ -85,11 +86,10 @@ def main():
         sys.exit()
 
     if opts.verbose:
-        log_level = logging.DEBUG
+        logging.disable(logging.NOTSET)
     else:
-        log_level = logging.CRITICAL
+        logging.disable(logging.CRITICAL)
 
-    logging.basicConfig(level=log_level, format='%(name)-11s: %(message)s')
     forwarder = Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port, 100)
 
     try:
