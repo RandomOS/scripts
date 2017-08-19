@@ -10,7 +10,7 @@ import optparse
 
 class Forwarder(asyncore.dispatcher):
 
-    def __init__(self, ip, port, remoteip, remoteport, backlog=5):
+    def __init__(self, ip, port, remoteip, remoteport, backlog):
         asyncore.dispatcher.__init__(self)
         self.remoteip = remoteip
         self.remoteport = remoteport
@@ -22,6 +22,10 @@ class Forwarder(asyncore.dispatcher):
     def handle_accept(self):
         conn, addr = self.accept()
         Sender(Receiver(conn), self.remoteip, self.remoteport)
+
+    def listen(self, num):
+        self.accepting = True
+        return self.socket.listen(num)
 
 
 class Receiver(asyncore.dispatcher):
@@ -96,7 +100,7 @@ def main():
     parser.add_option('-l', '--local-ip', dest='local_ip', help='Local IP address to bind to')
     parser.add_option('-p', '--local-port', type='int', dest='local_port', help='Local port to bind to')
     parser.add_option('-r', '--remote-ip', dest='remote_ip', help='Local IP address to bind to')
-    parser.add_option('-P', '--remote-port', type='int', dest='remote_port',  help='Remote port to bind to')
+    parser.add_option('-P', '--remote-port', type='int', dest='remote_port', help='Remote port to bind to')
     parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='verbose')
     opts, args = parser.parse_args()
 
