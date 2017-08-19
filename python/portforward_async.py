@@ -93,34 +93,20 @@ class Sender(asyncore.dispatcher):
 
 def main():
     parser = optparse.OptionParser()
-
-    parser.add_option(
-        '-l', '--local-ip', dest='local_ip',
-        help='Local IP address to bind to')
-    parser.add_option(
-        '-p', '--local-port',
-        type='int', dest='local_port',
-        help='Local port to bind to')
-    parser.add_option(
-        '-r', '--remote-ip', dest='remote_ip',
-        help='Local IP address to bind to')
-    parser.add_option(
-        '-P', '--remote-port',
-        type='int', dest='remote_port',
-        help='Remote port to bind to')
-    parser.add_option(
-        '-v', '--verbose',
-        action='store_true', dest='verbose',
-        help='verbose')
+    parser.add_option('-l', '--local-ip', dest='local_ip', help='Local IP address to bind to')
+    parser.add_option('-p', '--local-port', type='int', dest='local_port', help='Local port to bind to')
+    parser.add_option('-r', '--remote-ip', dest='remote_ip', help='Local IP address to bind to')
+    parser.add_option('-P', '--remote-port', type='int', dest='remote_port',  help='Remote port to bind to')
+    parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='verbose')
     opts, args = parser.parse_args()
 
     if len(sys.argv) == 1 or len(args) > 0:
         parser.print_help()
-        exit()
+        sys.exit()
 
     if not (opts.local_ip and opts.local_port and opts.remote_ip and opts.remote_port):
         parser.print_help()
-        exit()
+        sys.exit()
 
     if opts.verbose:
         log_level = logging.DEBUG
@@ -128,13 +114,13 @@ def main():
         log_level = logging.CRITICAL
 
     logging.basicConfig(level=log_level, format='%(name)-9s: %(message)s')
-    Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
+    Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port, 100)
 
     try:
         asyncore.loop(use_poll=True)
     except KeyboardInterrupt:
         print 'quit'
-        exit()
+        sys.exit()
 
 
 if __name__ == '__main__':
