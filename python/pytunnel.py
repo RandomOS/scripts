@@ -97,7 +97,6 @@ class Receiver(asyncore.dispatcher):
             return data
         tag = struct.unpack('B', data)[0]
         if tag != TAG:
-            print 'xxxxxxxxxxxxxxxxxxxx'
             self.handle_close()
             return ''
         data = self.recv(2)
@@ -155,7 +154,6 @@ class Sender(asyncore.dispatcher):
             return data
         tag = struct.unpack('B', data)[0]
         if tag != TAG:
-            print 'xxxxxxxxxxxxxxxxxxxx'
             self.handle_close()
             return ''
         data = self.recv(2)
