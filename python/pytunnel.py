@@ -70,12 +70,12 @@ class Receiver(asyncore.dispatcher):
         if self.mode == 'server':
             read = self.recvpacket()
             if len(read) > 0:
-                self.logger.debug('read  %04i --> from %s:%d', len(read), self.client_ip, self.client_port)
+                self.logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
                 self.from_client_buffer += decrypt(read, self.key)
         elif self.mode == 'client':
             read = self.recv(4096)
             if len(read) > 0:
-                self.logger.debug('read  %04i --> from %s:%d', len(read), self.client_ip, self.client_port)
+                self.logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
                 self.from_client_buffer += wraptlv(TAG, encrypt(read, self.key))
 
     def writable(self):
@@ -83,7 +83,7 @@ class Receiver(asyncore.dispatcher):
 
     def handle_write(self):
         sent = self.send(self.to_client_buffer)
-        self.logger.debug('write %04i <-- to   %s:%d', sent, self.client_ip, self.client_port)
+        self.logger.debug('write %04i to   %s:%d', sent, self.client_ip, self.client_port)
         self.to_client_buffer = self.to_client_buffer[sent:]
 
     def handle_close(self):
@@ -96,6 +96,10 @@ class Receiver(asyncore.dispatcher):
         if not data:
             return data
         tag = struct.unpack('B', data)[0]
+        if tag != TAG:
+            print 'xxxxxxxxxxxxxxxxxxxx'
+            self.handle_close()
+            return ''
         data = self.recv(2)
         if not data:
             return data
@@ -125,12 +129,12 @@ class Sender(asyncore.dispatcher):
         if self.mode == 'server':
             read = self.recv(4096)
             if len(read) > 0:
-                self.logger.debug('read  <-- %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
+                self.logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
                 self.receiver.to_client_buffer += wraptlv(TAG, encrypt(read, self.key))
         elif self.mode == 'client':
             read = self.recvpacket()
             if len(read) > 0:
-                self.logger.debug('read  <-- %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
+                self.logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
                 self.receiver.to_client_buffer += decrypt(read, self.key)
 
     def writable(self):
@@ -138,7 +142,7 @@ class Sender(asyncore.dispatcher):
 
     def handle_write(self):
         sent = self.send(self.receiver.from_client_buffer)
-        self.logger.debug('write --> %04i to   %s:%d', sent, self.remote_ip, self.remote_port)
+        self.logger.debug('write %04i to   %s:%d', sent, self.remote_ip, self.remote_port)
         self.receiver.from_client_buffer = self.receiver.from_client_buffer[sent:]
 
     def handle_close(self):
@@ -150,6 +154,10 @@ class Sender(asyncore.dispatcher):
         if not data:
             return data
         tag = struct.unpack('B', data)[0]
+        if tag != TAG:
+            print 'xxxxxxxxxxxxxxxxxxxx'
+            self.handle_close()
+            return ''
         data = self.recv(2)
         if not data:
             return data

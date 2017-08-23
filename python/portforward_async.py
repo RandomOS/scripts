@@ -44,7 +44,7 @@ class Receiver(asyncore.dispatcher):
     def handle_read(self):
         read = self.recv(4096)
         if len(read) > 0:
-            self.logger.debug('read  %04i --> from %s:%d', len(read), self.client_ip, self.client_port)
+            self.logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
             self.from_client_buffer += read
 
     def writable(self):
@@ -52,7 +52,7 @@ class Receiver(asyncore.dispatcher):
 
     def handle_write(self):
         sent = self.send(self.to_client_buffer)
-        self.logger.debug('write %04i <-- to   %s:%d', sent, self.client_ip, self.client_port)
+        self.logger.debug('write %04i to   %s:%d', sent, self.client_ip, self.client_port)
         self.to_client_buffer = self.to_client_buffer[sent:]
 
     def handle_close(self):
@@ -79,7 +79,7 @@ class Sender(asyncore.dispatcher):
     def handle_read(self):
         read = self.recv(4096)
         if len(read) > 0:
-            self.logger.debug('read  <-- %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
+            self.logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
             self.receiver.to_client_buffer += read
 
     def writable(self):
@@ -87,7 +87,7 @@ class Sender(asyncore.dispatcher):
 
     def handle_write(self):
         sent = self.send(self.receiver.from_client_buffer)
-        self.logger.debug('write --> %04i to   %s:%d', sent, self.remote_ip, self.remote_port)
+        self.logger.debug('write %04i to   %s:%d', sent, self.remote_ip, self.remote_port)
         self.receiver.from_client_buffer = self.receiver.from_client_buffer[sent:]
 
     def handle_close(self):
