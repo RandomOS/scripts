@@ -4,10 +4,13 @@
 import sys
 import socket
 import struct
-import asyncore
 import logging
 import optparse
+import threading
 from itertools import cycle, izip
+
+logging.basicConfig(level=logging.DEBUG, format='[%(name)s:%(lineno)03d] %(message)s')
+logger = logging.getLogger('pytunnel')
 
 TAG = 128
 
@@ -29,139 +32,128 @@ def wraptlv(tag, value):
     return data
 
 
-class PyTunnel(asyncore.dispatcher):
+def recvtlv(sock):
+    data = sock.recv(1)
+    if not data:
+        return data
+    tag = struct.unpack('B', data)[0]
+    if tag != TAG:
+        return ''
+    data = sock.recv(2)
+    if not data:
+        return data
+    length = struct.unpack('!H', data)[0]
+    data = ''
+    size = length
+    while size > 0:
+        buf = sock.recv(size)
+        data += buf
+        size = length - len(data)
+    return data
+
+
+class SendEncrypt(threading.Thread):
+
+    def __init__(self, source_sock, target_sock, key):
+        super(SendEncrypt, self).__init__()
+        self.source_sock = source_sock
+        self.target_sock = target_sock
+        self.key = key
+        self.source_addr = self.source_sock.getpeername()
+        self.target_addr = self.target_sock.getpeername()
+
+    def run(self):
+        while True:
+            try:
+                data = self.source_sock.recv(4096)
+                if not data:
+                    break
+                logger.debug('read  %04i from %s:%d', len(data), self.source_addr[0], self.source_addr[1])
+                sent = self.target_sock.send(wraptlv(TAG, encrypt(data, self.key)))
+                logger.debug('write %04i to   %s:%d', sent, self.target_addr[0], self.target_addr[1])
+            except socket.error as e:
+                logger.error('socket error, e: %s', e)
+                break
+            except Exception as e:
+                logger.error('unknown error, e: %s', e)
+                break
+        logger.debug('connection %s:%d is closed.', self.source_addr[0], self.source_addr[1])
+        try:
+            self.source_sock.shutdown(socket.SHUT_RDWR)
+            self.target_sock.shutdown(socket.SHUT_RDWR)
+        except socket.error as e:
+            pass
+
+
+class RecvEncrypt(threading.Thread):
+
+    def __init__(self, source_sock, target_sock, key):
+        super(RecvEncrypt, self).__init__()
+        self.source_sock = source_sock
+        self.target_sock = target_sock
+        self.key = key
+        self.source_addr = self.source_sock.getpeername()
+        self.target_addr = self.target_sock.getpeername()
+
+    def run(self):
+        while True:
+            try:
+                data = recvtlv(self.source_sock)
+                if not data:
+                    break
+                logger.debug('read  %04i from %s:%d', len(data) + 3, self.source_addr[0], self.source_addr[1])
+                sent = self.target_sock.send(decrypt(data, self.key))
+                logger.debug('write %04i to   %s:%d', sent, self.target_addr[0], self.target_addr[1])
+            except socket.error as e:
+                logger.error('socket error, e: %s', e)
+                break
+            except Exception as e:
+                logger.error('unknown error, e: %s', e)
+                break
+        logger.debug('connection %s:%d is closed.', self.source_addr[0], self.source_addr[1])
+        try:
+            self.source_sock.shutdown(socket.SHUT_RDWR)
+            self.target_sock.shutdown(socket.SHUT_RDWR)
+        except socket.error as e:
+            pass
+
+
+class PyTunnel(object):
 
     def __init__(self, ip, port, remote_ip, remote_port, mode, key):
-        asyncore.dispatcher.__init__(self)
         self.remote_ip = remote_ip
         self.remote_port = remote_port
         self.mode = mode
         self.key = key
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.set_reuse_addr()
-        self.bind((ip, port))
-        self.listen(100)
+        self.backlog = 100
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((ip, port))
+        self.sock.listen(self.backlog)
 
-    def handle_accept(self):
-        conn, addr = self.accept()
-        Sender(Receiver(conn, self.mode, self.key), self.remote_ip, self.remote_port, self.mode, self.key)
+    def run(self):
+        while True:
+            source_sock, source_addr = self.sock.accept()
+            target_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            target_sock.connect((self.remote_ip, self.remote_port))
 
-    def listen(self, num):
-        self.accepting = True
-        return self.socket.listen(num)
+            if self.mode == 'server':
+                threads = [
+                    RecvEncrypt(source_sock, target_sock, self.key),
+                    SendEncrypt(target_sock, source_sock, self.key)
+                ]
+            elif self.mode == 'client':
+                threads = [
+                    SendEncrypt(source_sock, target_sock, self.key),
+                    RecvEncrypt(target_sock, source_sock, self.key)
+                ]
 
+            for t in threads:
+                t.setDaemon(True)
+                t.start()
 
-class Receiver(asyncore.dispatcher):
-
-    def __init__(self, conn, mode, key):
-        asyncore.dispatcher.__init__(self, conn)
-        self.logger = logging.getLogger('Receiver')
-        self.client_ip, self.client_port = conn.getpeername()
-        self.from_client_buffer = ''
-        self.to_client_buffer = ''
-        self.sender = None
-        self.mode = mode
-        self.key = key
-
-    def handle_connect(self):
-        pass
-
-    def handle_read(self):
-        if self.mode == 'server':
-            read = self.recvpacket()
-            if len(read) > 0:
-                self.logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
-                self.from_client_buffer += decrypt(read, self.key)
-        elif self.mode == 'client':
-            read = self.recv(4096)
-            if len(read) > 0:
-                self.logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
-                self.from_client_buffer += wraptlv(TAG, encrypt(read, self.key))
-
-    def writable(self):
-        return len(self.to_client_buffer) > 0
-
-    def handle_write(self):
-        sent = self.send(self.to_client_buffer)
-        self.logger.debug('write %04i to   %s:%d', sent, self.client_ip, self.client_port)
-        self.to_client_buffer = self.to_client_buffer[sent:]
-
-    def handle_close(self):
-        self.close()
-        if self.sender:
-            self.sender.close()
-
-    def recvpacket(self):
-        data = self.recv(1)
-        if not data:
-            return data
-        tag = struct.unpack('B', data)[0]
-        if tag != TAG:
-            self.handle_close()
-            return ''
-        data = self.recv(2)
-        if not data:
-            return data
-        length = struct.unpack('!H', data)[0]
-        data = self.recv(length)
-        return data
-
-
-class Sender(asyncore.dispatcher):
-
-    def __init__(self, receiver, remote_ip, remote_port, mode, key):
-        asyncore.dispatcher.__init__(self)
-        self.logger = logging.getLogger('Sender')
-        self.remote_ip = remote_ip
-        self.remote_port = remote_port
-        self.mode = mode
-        self.key = key
-        self.receiver = receiver
-        receiver.sender = self
-        self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.connect((remote_ip, remote_port))
-
-    def handle_connect(self):
-        pass
-
-    def handle_read(self):
-        if self.mode == 'server':
-            read = self.recv(4096)
-            if len(read) > 0:
-                self.logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
-                self.receiver.to_client_buffer += wraptlv(TAG, encrypt(read, self.key))
-        elif self.mode == 'client':
-            read = self.recvpacket()
-            if len(read) > 0:
-                self.logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
-                self.receiver.to_client_buffer += decrypt(read, self.key)
-
-    def writable(self):
-        return len(self.receiver.from_client_buffer) > 0
-
-    def handle_write(self):
-        sent = self.send(self.receiver.from_client_buffer)
-        self.logger.debug('write %04i to   %s:%d', sent, self.remote_ip, self.remote_port)
-        self.receiver.from_client_buffer = self.receiver.from_client_buffer[sent:]
-
-    def handle_close(self):
-        self.close()
-        self.receiver.close()
-
-    def recvpacket(self):
-        data = self.recv(1)
-        if not data:
-            return data
-        tag = struct.unpack('B', data)[0]
-        if tag != TAG:
-            self.handle_close()
-            return ''
-        data = self.recv(2)
-        if not data:
-            return data
-        length = struct.unpack('!H', data)[0]
-        data = self.recv(length)
-        return data
+    def __del__(self):
+        self.sock.close()
 
 
 def main():
@@ -180,7 +172,7 @@ def main():
     opts_error = False
     if opts.mode not in ('client', 'server'):
         opts_error = True
-    elif len(opts.key) < 5:
+    elif len(opts.key) < 4:
         opts_error = True
     elif ':' not in opts.local_addr or ':' not in opts.remote_addr:
         opts_error = True
@@ -190,19 +182,18 @@ def main():
         sys.exit()
 
     if opts.verbose:
-        log_level = logging.DEBUG
+        logging.disable(logging.NOTSET)
     else:
-        log_level = logging.CRITICAL
+        logging.disable(logging.CRITICAL)
 
     local_ip, local_port = opts.local_addr.split(':')
     remote_ip, remote_port = opts.remote_addr.split(':')
     local_port = int(local_port)
     remote_port = int(remote_port)
-    logging.basicConfig(level=log_level, format='%(name)-9s: %(message)s')
-    PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, opts.key)
+    tunnel = PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, opts.key)
 
     try:
-        asyncore.loop(use_poll=True)
+        tunnel.run()
     except KeyboardInterrupt:
         print 'quit'
         sys.exit()
