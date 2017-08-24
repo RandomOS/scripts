@@ -14,10 +14,11 @@ class Forwarder(asyncore.dispatcher):
         asyncore.dispatcher.__init__(self)
         self.remote_ip = remote_ip
         self.remote_port = remote_port
+        self.backlog = 100
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.set_reuse_addr()
         self.bind((ip, port))
-        self.listen(100)
+        self.listen(self.backlog)
 
     def handle_accept(self):
         conn, addr = self.accept()
@@ -97,10 +98,8 @@ class Sender(asyncore.dispatcher):
 
 def main():
     parser = optparse.OptionParser()
-    parser.add_option('-l', '--local-ip', dest='local_ip', help='local ip address to bind to')
-    parser.add_option('-p', '--local-port', type='int', dest='local_port', help='local port to bind to')
-    parser.add_option('-r', '--remote-ip', dest='remote_ip', help='remote ip address to bind to')
-    parser.add_option('-P', '--remote-port', type='int', dest='remote_port', help='remote port to bind to')
+    parser.add_option('-l', '--local', dest='local_addr', help='local address:port, eg: 127.0.0.1:8080')
+    parser.add_option('-r', '--remote', dest='remote_addr', help='remote address:port, eg: 192.168.0.120:8080')
     parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='verbose')
     opts, args = parser.parse_args()
 
@@ -108,7 +107,7 @@ def main():
         parser.print_help()
         sys.exit()
 
-    if not (opts.local_ip and opts.local_port and opts.remote_ip and opts.remote_port):
+    if ':' not in opts.local_addr or ':' not in opts.remote_addr:
         parser.print_help()
         sys.exit()
 
@@ -118,7 +117,11 @@ def main():
         log_level = logging.CRITICAL
 
     logging.basicConfig(level=log_level, format='%(name)-9s: %(message)s')
-    Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
+    local_ip, local_port = opts.local_addr.split(':')
+    remote_ip, remote_port = opts.remote_addr.split(':')
+    local_port = int(local_port)
+    remote_port = int(remote_port)
+    forwarder = Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
 
     try:
         asyncore.loop(use_poll=True)
