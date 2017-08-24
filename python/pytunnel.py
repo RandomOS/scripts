@@ -4,6 +4,7 @@
 import sys
 import socket
 import struct
+import hashlib
 import logging
 import optparse
 import threading
@@ -190,7 +191,8 @@ def main():
     remote_ip, remote_port = opts.remote_addr.split(':')
     local_port = int(local_port)
     remote_port = int(remote_port)
-    tunnel = PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, opts.key)
+    key = hashlib.sha512(opts.key).hexdigest().encode('rot-13')
+    tunnel = PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, key)
 
     try:
         tunnel.run()
