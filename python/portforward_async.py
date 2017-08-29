@@ -44,7 +44,7 @@ class Receiver(asyncore.dispatcher):
 
     def handle_read(self):
         read = self.recv(4096)
-        if len(read) > 0:
+        if read:
             self.logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
             self.from_client_buffer += read
 
@@ -79,7 +79,7 @@ class Sender(asyncore.dispatcher):
 
     def handle_read(self):
         read = self.recv(4096)
-        if len(read) > 0:
+        if read:
             self.logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
             self.receiver.to_client_buffer += read
 
