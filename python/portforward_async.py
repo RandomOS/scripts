@@ -121,7 +121,7 @@ def main():
     remote_ip, remote_port = opts.remote_addr.split(':')
     local_port = int(local_port)
     remote_port = int(remote_port)
-    forwarder = Forwarder(opts.local_ip, opts.local_port, opts.remote_ip, opts.remote_port)
+    forwarder = Forwarder(local_ip, local_port, remote_ip, remote_port)
 
     try:
         asyncore.loop(use_poll=True)
