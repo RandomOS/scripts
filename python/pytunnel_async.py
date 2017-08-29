@@ -71,6 +71,12 @@ class Receiver(asyncore.dispatcher):
         self.length = 0
         self.sender = None
 
+    def readable(self):
+        return len(self.from_client_buffer) < 40960
+
+    def writable(self):
+        return len(self.to_client_buffer) > 0
+
     def handle_connect(self):
         pass
 
@@ -97,9 +103,6 @@ class Receiver(asyncore.dispatcher):
             if read:
                 logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
                 self.from_client_buffer += wraptlv(TAG, encrypt(read, self.key))
-
-    def writable(self):
-        return len(self.to_client_buffer) > 0
 
     def handle_write(self):
         sent = self.send(self.to_client_buffer)
@@ -155,6 +158,12 @@ class Sender(asyncore.dispatcher):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect((remote_ip, remote_port))
 
+    def readable(self):
+        return len(self.receiver.to_client_buffer) < 40960
+
+    def writable(self):
+        return len(self.receiver.from_client_buffer) > 0
+
     def handle_connect(self):
         pass
 
@@ -181,9 +190,6 @@ class Sender(asyncore.dispatcher):
                     self.at_tlv_start_pos = True
                     self.value = ''
                     self.length = 0
-
-    def writable(self):
-        return len(self.receiver.from_client_buffer) > 0
 
     def handle_write(self):
         sent = self.send(self.receiver.from_client_buffer)
