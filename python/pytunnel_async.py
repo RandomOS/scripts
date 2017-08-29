@@ -66,6 +66,7 @@ class Receiver(asyncore.dispatcher):
         self.from_client_buffer = ''
         self.to_client_buffer = ''
         self.at_tlv_start_pos = True
+        self.tag_and_length = ''
         self.value = ''
         self.length = 0
         self.sender = None
@@ -76,21 +77,18 @@ class Receiver(asyncore.dispatcher):
     def handle_read(self):
         if self.mode == 'server':
             if self.at_tlv_start_pos:
-                length = self.read_value_length()
-                if length:
-                    logger.debug('read  %04i from %s:%d', 3, self.client_ip, self.client_port)
+                tag, length = self.read_tag_and_length()
+                if tag is not None and length is not None:
+                    if tag != TAG or length == 0:
+                        self.handle_close()
+                        return
                     self.at_tlv_start_pos = False
+                    self.tag_and_length = ''
                     self.length = length
             else:
-                remain_size = self.length - len(self.value)
-                if remain_size > 0:
-                    read = self.recv(remain_size)
-                    if read:
-                        logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
-                        self.value += read
-                        remain_size = self.length - len(self.value)
-                if remain_size == 0:
-                    self.from_client_buffer += decrypt(self.value, self.key)
+                value = self.read_value()
+                if value:
+                    self.from_client_buffer += decrypt(value, self.key)
                     self.at_tlv_start_pos = True
                     self.value = ''
                     self.length = 0
@@ -113,19 +111,31 @@ class Receiver(asyncore.dispatcher):
         if self.sender:
             self.sender.close()
 
-    def read_value_length(self):
-        data = self.recv(1)
-        if not data:
-            return data
-        tag = struct.unpack('B', data)[0]
-        if tag != TAG:
-            self.handle_close()
-            return ''
-        data = self.recv(2)
-        if not data:
-            return data
-        length = struct.unpack('!H', data)[0]
-        return length
+    def read_tag_and_length(self):
+        tag_and_length_size = 3
+        remain_size = tag_and_length_size - len(self.tag_and_length)
+        if remain_size > 0:
+            read = self.recv(remain_size)
+            if read:
+                logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
+                self.tag_and_length += read
+                remain_size = tag_and_length_size - len(self.tag_and_length)
+        if remain_size == 0:
+            tag = struct.unpack('B', self.tag_and_length[0])[0]
+            length = struct.unpack('!H', self.tag_and_length[1:3])[0]
+            return tag, length
+        return None, None
+
+    def read_value(self):
+        remain_size = self.length - len(self.value)
+        if remain_size > 0:
+            read = self.recv(remain_size)
+            if read:
+                logger.debug('read  %04i from %s:%d', len(read), self.client_ip, self.client_port)
+                self.value += read
+                remain_size = self.length - len(self.value)
+        if remain_size == 0:
+            return self.value
 
 
 class Sender(asyncore.dispatcher):
@@ -137,6 +147,7 @@ class Sender(asyncore.dispatcher):
         self.mode = mode
         self.key = key
         self.at_tlv_start_pos = True
+        self.tag_and_length = ''
         self.value = ''
         self.length = 0
         self.receiver = receiver
@@ -155,21 +166,18 @@ class Sender(asyncore.dispatcher):
                 self.receiver.to_client_buffer += wraptlv(TAG, encrypt(read, self.key))
         elif self.mode == 'client':
             if self.at_tlv_start_pos:
-                length = self.read_value_length()
-                if length:
-                    logger.debug('read  %04i from %s:%d', 3, self.remote_ip, self.remote_port)
+                tag, length = self.read_tag_and_length()
+                if tag is not None and length is not None:
+                    if tag != TAG or length == 0:
+                        self.handle_close()
+                        return
                     self.at_tlv_start_pos = False
+                    self.tag_and_length = ''
                     self.length = length
             else:
-                remain_size = self.length - len(self.value)
-                if remain_size > 0:
-                    read = self.recv(remain_size)
-                    if read:
-                        logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
-                        self.value += read
-                        remain_size = self.length - len(self.value)
-                if remain_size == 0:
-                    self.receiver.to_client_buffer += decrypt(self.value, self.key)
+                value = self.read_value()
+                if value:
+                    self.receiver.to_client_buffer += decrypt(value, self.key)
                     self.at_tlv_start_pos = True
                     self.value = ''
                     self.length = 0
@@ -186,19 +194,31 @@ class Sender(asyncore.dispatcher):
         self.close()
         self.receiver.close()
 
-    def read_value_length(self):
-        data = self.recv(1)
-        if not data:
-            return data
-        tag = struct.unpack('B', data)[0]
-        if tag != TAG:
-            self.handle_close()
-            return ''
-        data = self.recv(2)
-        if not data:
-            return data
-        length = struct.unpack('!H', data)[0]
-        return length
+    def read_tag_and_length(self):
+        tag_and_length_size = 3
+        remain_size = tag_and_length_size - len(self.tag_and_length)
+        if remain_size > 0:
+            read = self.recv(remain_size)
+            if read:
+                logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
+                self.tag_and_length += read
+                remain_size = tag_and_length_size - len(self.tag_and_length)
+        if remain_size == 0:
+            tag = struct.unpack('B', self.tag_and_length[0])[0]
+            length = struct.unpack('!H', self.tag_and_length[1:3])[0]
+            return tag, length
+        return None, None
+
+    def read_value(self):
+        remain_size = self.length - len(self.value)
+        if remain_size > 0:
+            read = self.recv(remain_size)
+            if read:
+                logger.debug('read  %04i from %s:%d', len(read), self.remote_ip, self.remote_port)
+                self.value += read
+                remain_size = self.length - len(self.value)
+        if remain_size == 0:
+            return self.value
 
 
 def main():
