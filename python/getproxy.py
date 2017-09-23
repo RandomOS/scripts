@@ -110,7 +110,7 @@ def echo(content):
 
 
 def main():
-    parser = argparse.ArgumentParser(version='1.0')
+    parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group(required=True)
 
     group.add_argument('-f', action='store_true', default=False,
@@ -121,6 +121,7 @@ def main():
                         dest='check', help='verify proxy list, delete invalid proxy')
     parser.add_argument('-o', metavar='out-file', type=argparse.FileType('wt'),
                         dest='outfile', help='write proxy list to out-file')
+    parser.add_argument('-v', action='version', version='%(prog)s 1.0')
 
     if not len(sys.argv) > 1:
         parser.print_help()
