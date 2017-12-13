@@ -20,7 +20,7 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
         data = bytes.decode(self.packet.strip('\x00'))
         m = re.search(r'^<\d+>', data)
         if m:
-            data = data.replace(m.group(0), '')
+            data = data[len(m.group(0)):]
             logger.info(data)
 
 
