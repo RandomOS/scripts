@@ -12,6 +12,9 @@ import logging
 import logging.handlers
 import SocketServer
 
+lock = threading.Lock()
+logger_dict = {}
+
 syslogd_config = {
     'log_dir': None
 }
@@ -21,8 +24,6 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
 
     def setup(self):
         self.packet, self.socket = self.request
-        self.lock = threading.Lock()
-        self.logger_dict = {}
 
     def handle(self):
         data = None
@@ -40,35 +41,59 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
         if match:
             result = match.groupdict()
             extra = result['extra']
-            msg = result['msg']
+            msg = result['msg'].lstrip('- ')
             client_ip = self.client_address[0]
             syslog_tag = extra.split(' ')[-1].strip(':')
-            log_name = time.strftime('%Y/%m/%Y-%m-%d.log', time.localtime(time.time()))
+            log_name = time.strftime('%Y/%m/%Y-%m-%d.log', time.localtime())
             log_file_path = '%s/%s/%s' % (client_ip, syslog_tag, log_name)
             log_file_path = os.path.join(syslogd_config['log_dir'], log_file_path)
             logger = self.get_logger(log_file_path)
             logger.info(msg)
 
     def get_logger(self, log_file_path):
-        with self.lock:
+        with lock:
             parent_dir = os.path.dirname(log_file_path)
             if not os.path.isdir(parent_dir):
                 os.makedirs(parent_dir)
             logger_name = hashlib.md5(log_file_path).hexdigest()
-            logger = self.logger_dict.get(logger_name)
-            if not logger:
+            log_item = logger_dict.get(logger_name)
+            if log_item:
+                logger = log_item['logger']
+            else:
                 logger = logging.getLogger(logger_name)
                 handler = logging.handlers.WatchedFileHandler(filename=log_file_path, mode='a', encoding='utf-8')
                 formatter = logging.Formatter(fmt='%(message)s')
                 handler.setFormatter(formatter)
                 logger.addHandler(handler)
                 logger.setLevel(logging.INFO)
-                self.logger_dict[logger_name] = logger
+                logger_dict[logger_name] = {
+                    'logger': logger,
+                    'created_at': time.time()
+                }
             return logger
 
 
 class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
     pass
+
+
+def clean_logger():
+    while True:
+        struct_time = time.localtime()
+        if struct_time.tm_hour == 0 and struct_time.tm_min == 5:
+            with lock:
+                log_names = []
+                for log_name, log_item in logger_dict.items():
+                    created_at = log_item['created_at']
+                    if time.localtime(created_at).tm_mday != struct_time.tm_mday:
+                        log_names.append(log_name)
+                        logger = log_item['logger']
+                        for handler in logger.handlers:
+                            handler.close()
+                for log_name in log_names:
+                    del logger_dict[log_name]
+            time.sleep(60)
+        time.sleep(30)
 
 
 def main():
@@ -83,6 +108,10 @@ def main():
         sys.exit()
 
     syslogd_config['log_dir'] = opts.log_dir
+
+    t = threading.Thread(target=clean_logger)
+    t.setDaemon(True)
+    t.start()
 
     try:
         address = (opts.ip, opts.port)
