@@ -17,10 +17,20 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
         self.packet, self.socket = self.request
 
     def handle(self):
-        data = bytes.decode(self.packet.strip('\x00'))
-        m = re.search(r'^<\d+>', data)
-        if m:
-            data = data[len(m.group(0)):]
+        data = None
+        encodings = ['utf-8', 'gbk']
+        for encoding in encodings:
+            try:
+                data = bytes.decode(self.packet.strip('\x00'), encoding)
+            except UnicodeDecodeError:
+                continue
+            else:
+                break
+        if data is None:
+            data = bytes.decode(self.packet.strip('\x00'), 'utf-8', 'ignore')
+        match = re.search(r'^<\d+>', data)
+        if match:
+            data = data[len(match.group(0)):]
             logger.info(data)
 
 

@@ -25,13 +25,23 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
         self.logger_dict = {}
 
     def handle(self):
-        client_ip = self.client_address[0]
-        data = bytes.decode(self.packet.strip('\x00'))
+        data = None
+        encodings = ['utf-8', 'gbk']
+        for encoding in encodings:
+            try:
+                data = bytes.decode(self.packet.strip('\x00'), encoding)
+            except UnicodeDecodeError:
+                continue
+            else:
+                break
+        if data is None:
+            data = bytes.decode(self.packet.strip('\x00'), 'utf-8', 'ignore')
         match = re.search(r'^<(?P<pri>\d+)>(?P<extra>.+?:) (?P<msg>.+)$', data)
         if match:
             result = match.groupdict()
             extra = result['extra']
             msg = result['msg']
+            client_ip = self.client_address[0]
             syslog_tag = extra.split(' ')[-1].strip(':')
             log_name = time.strftime('%Y/%m/%Y-%m-%d.log', time.localtime(time.time()))
             log_file_path = '%s/%s/%s' % (client_ip, syslog_tag, log_name)
