@@ -48,7 +48,7 @@ def get_page_content(url):
 def extract_proxy(content):
     """ extract proxy """
     proxy_li = []
-    pattern = re.compile(r'<tr><td>([\d.]+)</td><td>(\d+)</td>', re.I)
+    pattern = re.compile(r'<td>([\d.]+)</td>\s+<td>(\d+)</td>', re.I)
     match = pattern.findall(content)
     for item in match:
         ip, port = item
@@ -59,7 +59,7 @@ def extract_proxy(content):
 def fetch_proxy_list():
     """ fetch proxy list """
     proxy_li = []
-    url = 'https://free-proxy-list.net/'
+    url = 'http://www.xicidaili.com/wt/'
     content = get_page_content(url)
     if content is None:
         return []
