@@ -38,7 +38,7 @@ def main():
     while True:
         line = sys.stdin.readline()
         if not line:
-            time.sleep(0.1)
+            break
         logger.info(line.strip())
 
 
