@@ -17,8 +17,8 @@ TAG = 128
 
 
 def encrypt(value, key):
-    encrypt_value = ''.join(chr(ord(c) ^ ord(k)) for c, k in izip(value, cycle(key)))
-    return encrypt_value
+    result = ''.join(chr(ord(c) ^ ord(k)) for c, k in izip(value, cycle(key)))
+    return result
 
 
 def decrypt(value, key):
