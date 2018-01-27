@@ -2,27 +2,50 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import string
 import socket
 import struct
+import random
 import hashlib
 import logging
 import optparse
 import threading
-from itertools import cycle, izip
 
 logging.basicConfig(level=logging.DEBUG, format='[%(name)s:%(lineno)03d] %(message)s')
 logger = logging.getLogger('pytunnel')
 
 TAG = 128
 
+trans_table = {
+    'encode_table': None,
+    'decode_table': None
+}
+
+
+def get_trans_table(key):
+    if trans_table['encode_table'] and trans_table['decode_table']:
+        return trans_table['encode_table'], trans_table['decode_table']
+    original_data = string.maketrans('', '')
+    encoded_data = string.maketrans('', '')
+    encoded_data = bytearray(encoded_data)
+    random.seed(key)
+    random.shuffle(encoded_data)
+    encoded_data = str(encoded_data)
+    trans_table['encode_table'] = string.maketrans(original_data, encoded_data)
+    trans_table['decode_table'] = string.maketrans(encoded_data, original_data)
+    return trans_table['encode_table'], trans_table['decode_table']
+
 
 def encrypt(value, key):
-    result = ''.join(chr(ord(c) ^ ord(k)) for c, k in izip(value, cycle(key)))
+    encode_table, _ = get_trans_table(key)
+    result = string.translate(value, encode_table)
     return result
 
 
 def decrypt(value, key):
-    return encrypt(value, key)
+    _, decode_table = get_trans_table(key)
+    result = string.translate(value, decode_table)
+    return result
 
 
 def wraptlv(tag, value):
@@ -162,7 +185,7 @@ def main():
     parser.add_option('-m', '--mode', dest='mode', help='client, server')
     parser.add_option('-l', '--local', dest='local_addr', help='local address:port, eg: 127.0.0.1:8080')
     parser.add_option('-r', '--remote', dest='remote_addr', help='remote address:port, eg: 192.168.0.120:8080')
-    parser.add_option('-k', '--key', dest='key', help='key')
+    parser.add_option('-k', '--key', dest='key', help='key, eg: helloworld')
     parser.add_option('-v', '--verbose', action='store_true', dest='verbose', help='verbose')
     opts, args = parser.parse_args()
 
@@ -191,7 +214,7 @@ def main():
     remote_ip, remote_port = opts.remote_addr.split(':')
     local_port = int(local_port)
     remote_port = int(remote_port)
-    key = hashlib.sha512(opts.key).hexdigest().encode('rot-13')
+    key = hashlib.sha512(opts.key).digest()
     tunnel = PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, key)
 
     try:
