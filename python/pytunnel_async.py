@@ -28,7 +28,7 @@ def get_trans_table(key):
     original_data = string.maketrans('', '')
     encoded_data = string.maketrans('', '')
     encoded_data = bytearray(encoded_data)
-    random.seed(key)
+    random.seed(int(key, 16))
     random.shuffle(encoded_data)
     encoded_data = str(encoded_data)
     trans_table['encode_table'] = string.maketrans(original_data, encoded_data)
@@ -284,7 +284,7 @@ def main():
     remote_ip, remote_port = opts.remote_addr.split(':')
     local_port = int(local_port)
     remote_port = int(remote_port)
-    key = hashlib.sha512(opts.key).digest()
+    key = hashlib.sha1(opts.key).hexdigest()
     tunnel = PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, key)
 
     try:
