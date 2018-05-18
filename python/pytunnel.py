@@ -181,7 +181,7 @@ class PyTunnel(object):
 
 
 def main():
-    parser = optparse.OptionParser()
+    parser = optparse.OptionParser(version='0.1.0')
     parser.add_option('-m', '--mode', dest='mode', help='client, server')
     parser.add_option('-l', '--local', dest='local_addr', help='local address:port, eg: 127.0.0.1:8080')
     parser.add_option('-r', '--remote', dest='remote_addr', help='remote address:port, eg: 192.168.0.120:8080')
