@@ -78,6 +78,12 @@ class Sender(asyncore.dispatcher):
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.connect((remote_ip, remote_port))
 
+    def connect(self, address):
+        try:
+            asyncore.dispatcher.connect(self, address)
+        except socket.error as e:
+            self.handle_close()
+
     def readable(self):
         return len(self.receiver.to_client_buffer) < 40960
 
