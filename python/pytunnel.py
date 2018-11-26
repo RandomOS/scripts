@@ -163,6 +163,7 @@ class PyTunnel(object):
                 target_sock.connect((self.remote_ip, self.remote_port))
             except socket.error as e:
                 source_sock.close()
+                target_sock.close()
                 continue
 
             if self.mode == 'server':
