@@ -159,7 +159,11 @@ class PyTunnel(object):
         while True:
             source_sock, source_addr = self.sock.accept()
             target_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            target_sock.connect((self.remote_ip, self.remote_port))
+            try:
+                target_sock.connect((self.remote_ip, self.remote_port))
+            except socket.error as e:
+                source_sock.close()
+                continue
 
             if self.mode == 'server':
                 threads = [
