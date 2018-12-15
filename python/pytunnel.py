@@ -69,10 +69,14 @@ def recvtlv(sock):
     length = struct.unpack('!H', data)[0]
     data = ''
     size = length
+    count = 0
     while size > 0:
         buf = sock.recv(size)
         data += buf
         size = length - len(data)
+        count += 1
+        if count > 5 and size > 0:
+            return ''
     return data
 
 
