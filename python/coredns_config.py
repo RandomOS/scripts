@@ -19,9 +19,26 @@ coredns_config = """
 .:5353 {
     forward . tls://8.8.8.8 tls://8.8.4.4 {
         tls_servername dns.google
-         health_check 5s
+        health_check 5s
     }
-    cache 60
+    cache 30
+}
+
+
+.:15353 {
+    forward . tls://1.1.1.1 tls://1.0.0.1 {
+        tls_servername cloudflare-dns.com
+        health_check 5s
+    }
+    cache 30
+}
+
+.:25353 {
+    forward . tls://9.9.9.9 {
+        tls_servername dns.quad9.net
+        health_check 5s
+    }
+    cache 30
 }
 """
 
