@@ -28,6 +28,9 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
                 break
         if data is None:
             data = bytes.decode(self.packet.strip('\x00'), 'utf-8', 'ignore')
+        if data.strip() == 'ping':
+            self.socket.sendto('pong', self.client_address)
+            return
         match = re.search(r'^<\d+>', data)
         if match:
             data = data[len(match.group(0)):]
