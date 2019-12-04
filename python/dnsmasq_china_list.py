@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import sys
 import urllib2
 
 coredns_config = """
@@ -48,8 +50,7 @@ def url_request(url):
     return r.read()
 
 
-def create_conf():
-    global coredns_config
+def get_domains():
     dnsmasq_conf = ''
     dnsmasq_conf += url_request('https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf')
     dnsmasq_conf += url_request('https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/apple.china.conf')
@@ -60,14 +61,39 @@ def create_conf():
         arr = line.split('/')
         if len(arr) == 3:
             domains.append(arr[1])
+    return domains
+
+
+def create_coredns_conf():
+    global coredns_config
+    domains = get_domains()
     domains = ' '.join(domains)
-    coredns_config = coredns_config.replace('{{ domains }}', domains).strip()
+    content = coredns_config.replace('{{ domains }}', domains).strip()
     with open('Corefile', 'wb') as f:
-        f.write(coredns_config)
+        f.write(content)
+
+
+def create_dnscrypt_proxy_conf():
+    domains = get_domains()
+    lines = [domain + ' 114.114.114.114' for domain in domains]
+    content = '\r\n'.join(lines)
+    with open('forwarding-rules.txt', 'wb') as f:
+        f.write(content)
 
 
 def main():
-    create_conf()
+    if len(sys.argv) != 2:
+        print '%s [coredns|dnscrypt-proxy]' % os.path.basename(sys.argv[0])
+        sys.exit()
+
+    opt = sys.argv[1]
+    if opt == 'coredns':
+        create_coredns_conf()
+    elif opt == 'dnscrypt-proxy':
+        create_dnscrypt_proxy_conf()
+    else:
+        print '%s [coredns|dnscrypt-proxy]' % os.path.basename(sys.argv[0])
+        sys.exit()
 
 
 if __name__ == '__main__':
