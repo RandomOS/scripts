@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/5bB24iM | bash -s test27-lab
+# wget -q -O - https://url.cn/5bB24iM | bash -s py27-lab
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/py27-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -29,23 +29,15 @@ if [ $? -ne 0 ]; then
     exit
 fi
 
-mkdir -p /root/.pip
-
-cat <<EOF >/root/.pip/pip.conf
-[global]
-index-url = https://pypi.tuna.tsinghua.edu.cn/simple
-trusted-host = pypi.tuna.tsinghua.edu.cn
-disable-pip-version-check = true
-format = columns
-EOF
-
-pip install -qq --no-cache-dir pip==18.1 ipython==3.2.3
-
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
 sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 
-apt update && apt-get install -y bash bash-completion curl vim tzdata
+apt-get update && apt-get install -y bash bash-completion curl vim tzdata
 
+mkdir -p /root/.pip
+curl -4sk -o /root/.pip/pip.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.pip/pip.conf
 curl -4sk -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
 curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+
+pip install -qq --no-cache-dir pip==18.1 ipython==3.2.3
