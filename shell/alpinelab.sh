@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# wget -q -O - https://url.cn/5qMN0za | sh
+# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/alpinelab.sh | sh
+
 sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 apk update && apk add --no-cache bash bash-completion curl vim tzdata
 
