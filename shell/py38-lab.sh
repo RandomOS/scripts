@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/5fwstQX | sh
+# wget -q -O - https://url.cn/5fwstQX | bash -s test38-lab
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/py38-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -9,6 +9,8 @@ if [ $? -ne 0 ]; then
     if [ -x "$(command -v docker)" ]; then
         container_name="py38-lab"
         image_name="python:3.8-buster"
+
+        [ -n "$1" ] && container_name="$1"
 
         if [ -n "$(docker ps -aq -f name=$container_name)" ]; then
             docker rm -f $container_name

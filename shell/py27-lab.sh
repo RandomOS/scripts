@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/5bB24iM | sh
+# wget -q -O - https://url.cn/5bB24iM | bash -s test27-lab
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/py27-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -9,6 +9,8 @@ if [ $? -ne 0 ]; then
     if [ -x "$(command -v docker)" ]; then
         container_name="py27-lab"
         image_name="python:2.7-buster"
+
+        [ -n "$1" ] && container_name="$1"
 
         if [ -n "$(docker ps -aq -f name=$container_name)" ]; then
             docker rm -f $container_name
