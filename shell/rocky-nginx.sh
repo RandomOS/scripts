@@ -20,14 +20,19 @@ if [ $? -ne 0 ]; then
             docker create -it --net host --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -v /run/shm:/run/shm \
-                $image_name /run.sh
+                --restart unless-stopped \
+                $image_name nginx -g 'daemon off;'
             wget -q -O /tmp/run.sh https://url.cn/5ypyM09 && chmod +x /tmp/run.sh
-            docker cp /tmp/run.sh $container_name:/run.sh && rm /tmp/run.sh
+            docker cp /tmp/run.sh $container_name:/usr/sbin/nginx && rm /tmp/run.sh
             docker start $container_name
         fi
     fi
     exit
 fi
+
+sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
+
+apk update && apk --no-cache add tzdata
 
 mkdir -p /etc/nginx
 mkdir -p /var/log/nginx
@@ -37,12 +42,5 @@ mkdir -p /var/lib/nginx/proxy
 mkdir -p /var/lib/nginx/scgi
 mkdir -p /var/lib/nginx/uwsgi
 
-if [ ! -x "$(command -v nginx)" ]; then
-    wget -q -O /usr/sbin/nginx.gz https://r.mipcdn.com/c/s/geocities.ws/rocky/bin/linux/amd64/nginx.gz && gzip -d /usr/sbin/nginx.gz && chmod +x /usr/sbin/nginx
-fi
-
-if [ ! -f /etc/nginx/nginx.conf ]; then
-    wget -q -O /etc/nginx/nginx.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/rocky-nginx/etc/nginx/nginx.conf
-fi
-
-nginx -g 'daemon off;'
+wget -q -O /etc/nginx/nginx.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/rocky-nginx/etc/nginx/nginx.conf
+wget -q -O /usr/sbin/nginx.gz https://r.mipcdn.com/c/s/geocities.ws/rocky/bin/linux/amd64/alpine/nginx.gz && gzip -df /usr/sbin/nginx.gz && chmod +x /usr/sbin/nginx
