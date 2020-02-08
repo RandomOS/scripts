@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/5YqbghT | sh
+# wget -q -O - https://t.cn/A6PelRzV | sh
+# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/chisel.sh | sh
 
 export PATH="$PATH:."
 export WORK_DIR="/tmp"
