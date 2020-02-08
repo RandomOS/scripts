@@ -15,7 +15,7 @@ fi
 
 if [ ! -x $WORK_DIR/cloudflared ]; then
     wget -q -O cloudflared.tgz https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.tgz
-    tar xf cloudflared.tgz
+    tar xf cloudflared.tgz && rm -f cloudflared.tgz
 fi
 
 pkill -x chisel
