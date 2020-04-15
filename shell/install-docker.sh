@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - http://t.cn/A6zKRKsu | sh
+# wget -q -O - https://t.cn/A6zKRKsu | sh
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/install-docker.sh | sh
 
 if [ "$(whoami)" != "root" ]; then

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - http://t.cn/A6wi8KeU | bash -s rocky-socks 3721 helloworld
+# wget -q -O - https://t.cn/A6wi8KeU | bash -s rocky-socks 3721 helloworld
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/rocky-socks.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -28,7 +28,7 @@ if [ $? -ne 0 ]; then
                 -p $exposed_port:3721 \
                 --restart unless-stopped \
                 $image_name /run.sh
-            wget -q -O /tmp/run.sh http://t.cn/A6wi8KeU && chmod +x /tmp/run.sh
+            wget -q -O /tmp/run.sh https://t.cn/A6wi8KeU && chmod +x /tmp/run.sh
             docker cp /tmp/run.sh $container_name:/run.sh && rm /tmp/run.sh
             docker start $container_name
         fi
