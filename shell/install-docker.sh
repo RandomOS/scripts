@@ -4,7 +4,6 @@
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/install-docker.sh | sh
 
 if [ "$(whoami)" != "root" ]; then
-    sudo -u root $0
     exit
 fi
 
