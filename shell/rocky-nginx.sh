@@ -43,4 +43,4 @@ mkdir -p /var/lib/nginx/scgi
 mkdir -p /var/lib/nginx/uwsgi
 
 wget -q -O /etc/nginx/nginx.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/rocky-nginx/etc/nginx/nginx.conf
-wget -q -O /usr/sbin/nginx.gz https://r.mipcdn.com/c/s/geocities.ws/rocky/bin/linux/amd64/alpine/nginx.gz && gzip -df /usr/sbin/nginx.gz && chmod +x /usr/sbin/nginx
+wget -q -O /usr/sbin/nginx.gz https://geocities.ws/rocky/bin/linux/amd64/alpine/nginx.gz && gzip -df /usr/sbin/nginx.gz && chmod +x /usr/sbin/nginx
