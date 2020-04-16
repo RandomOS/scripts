@@ -37,10 +37,6 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
             logger.info(data)
 
 
-class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
-    pass
-
-
 def main():
     parser = optparse.OptionParser()
     parser.add_option('-l', dest='ip', default='127.0.0.1', help='ip address to bind to, default: 127.0.0.1')
@@ -72,7 +68,7 @@ def main():
 
     try:
         address = (opts.ip, opts.port)
-        server = ThreadedUDPServer(address, SyslogUDPHandler)
+        server = SocketServer.UDPServer(address, SyslogUDPHandler)
         server.serve_forever()
     except KeyboardInterrupt:
         print '^C received, shutting down server'

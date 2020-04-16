@@ -73,10 +73,6 @@ class SyslogUDPHandler(SocketServer.BaseRequestHandler):
             return logger
 
 
-class ThreadedUDPServer(SocketServer.ThreadingMixIn, SocketServer.UDPServer):
-    pass
-
-
 def clean_logger():
     while True:
         struct_time = time.localtime()
@@ -115,7 +111,7 @@ def main():
 
     try:
         address = (opts.ip, opts.port)
-        server = ThreadedUDPServer(address, SyslogUDPHandler)
+        server = SocketServer.UDPServer(address, SyslogUDPHandler)
         server.serve_forever()
     except KeyboardInterrupt:
         print '^C received, shutting down server'
