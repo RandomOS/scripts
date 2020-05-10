@@ -17,9 +17,10 @@ if [ $? -ne 0 ]; then
         fi
 
         if [ ! -n "$(docker ps -aq -f name=$container_name)" ]; then
-            docker create -it --net host --name "$container_name" \
+            docker create -it --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -v /run/shm:/run/shm \
+                --init \
                 $image_name /bin/sh
             docker start $container_name
             docker exec $container_name wget -q -O /tmp/run.sh https://t.cn/A6AQXMzj
