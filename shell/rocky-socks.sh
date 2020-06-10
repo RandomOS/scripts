@@ -28,24 +28,25 @@ if [ $? -ne 0 ]; then
                 -p $exposed_port:3721 \
                 --restart unless-stopped \
                 $image_name /run.sh
-            wget -q -O /tmp/run.sh https://t.cn/A6wi8KeU && chmod +x /tmp/run.sh
-            docker cp /tmp/run.sh $container_name:/run.sh && rm /tmp/run.sh
-            docker start $container_name
+            wget -q -O /tmp/run.sh https://t.cn/A6wi8KeU \
+                && chmod +x /tmp/run.sh \
+                && docker cp /tmp/run.sh $container_name:/run.sh \
+                && rm /tmp/run.sh \
+                && docker start $container_name
         fi
     fi
     exit
 fi
 
 if [ ! -x "$(command -v socks)" ]; then
-    wget -q -O /bin/socks.gz https://geocities.ws/rocky/bin/linux/amd64/socks.gz
-    gzip -d /bin/socks.gz
-    chmod +x /bin/socks
+    wget -q -O /bin/socks.gz https://geocities.ws/rocky/bin/linux/amd64/socks.gz \
+        && gzip -d /bin/socks.gz \
+        && chmod +x /bin/socks
 fi
 
 if [ ! -x "$(command -v pytunnel)" ]; then
-    wget -q -O /bin/pytunnel https://gitee.com/randomk/scripts/raw/master/python/pytunnel_async.py
-    chmod +x /bin/pytunnel
-    sed -i "s|#!/usr/bin/env|#!/bin/env|g" /bin/pytunnel
+    wget -q -O /bin/pytunnel https://gitee.com/randomk/scripts/raw/master/python/pytunnel_async.py \
+        && chmod +x /bin/pytunnel
 fi
 
 socks -d -i127.0.0.1 -p1080

