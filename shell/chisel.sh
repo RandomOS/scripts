@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# wget -q -O - https://t.cn/A6PelRzV | sh
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/chisel.sh | sh
 
 PATH="$PATH:."

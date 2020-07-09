@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/51qbqu2 | bash -s bionic-lab
+# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh | bash -s bionic-lab
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -25,7 +25,7 @@ if [ $? -ne 0 ]; then
             docker start $container_name
             docker exec $container_name apt-get update -qq
             docker exec $container_name apt-get install -qq wget
-            docker exec $container_name wget -q -O /tmp/run.sh https://url.cn/51qbqu2
+            docker exec $container_name wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh
             docker exec $container_name sh /tmp/run.sh
         fi
     fi

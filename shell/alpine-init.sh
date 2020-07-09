@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/5vp4en4 | sh
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/alpine-init.sh | sh
 
 sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories

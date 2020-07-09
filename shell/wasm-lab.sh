@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://t.cn/A6PcVB21 | bash -s wasm-lab
+# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/wasm-lab.sh | bash -s wasm-lab
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/wasm-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
                 -v /run/shm:/run/shm \
                 $image_name /bin/sh
             docker start $container_name
-            docker exec $container_name wget -q -O /tmp/run.sh https://t.cn/A6PcVB21
+            docker exec $container_name wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/wasm-lab.sh
             docker exec $container_name sh /tmp/run.sh
         fi
     fi

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://url.cn/5ypyM09 | bash -s rocky-nginx
+# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/rocky-nginx.sh | bash -s rocky-nginx
 # wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/rocky-nginx.sh | sh
 
 grep -qs docker /proc/self/cgroup
@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
                 -v /run/shm:/run/shm \
                 --restart unless-stopped \
                 $image_name nginx -g 'daemon off;'
-            wget -q -O /tmp/run.sh https://url.cn/5ypyM09 \
+            wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/rocky-nginx.sh \
                 && chmod +x /tmp/run.sh \
                 && docker cp /tmp/run.sh $container_name:/usr/sbin/nginx \
                 && rm /tmp/run.sh \
