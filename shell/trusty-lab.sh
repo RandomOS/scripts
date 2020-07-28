@@ -22,11 +22,11 @@ if [ $? -ne 0 ]; then
                 -e LANG=en_US.UTF-8 \
                 -v /run/shm:/run/shm \
                 $image_name /bin/sh
-            docker start $container_name
-            docker exec $container_name apt-get update -qq
-            docker exec $container_name apt-get install -qq wget
-            docker exec $container_name wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/trusty-lab.sh
-            docker exec $container_name sh /tmp/run.sh
+            wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/trusty-lab.sh \
+                && docker cp /tmp/run.sh $container_name:/tmp/run.sh \
+                && rm -f /tmp/run.sh \
+                && docker start $container_name \
+                && docker exec $container_name sh /tmp/run.sh
         fi
     fi
     exit

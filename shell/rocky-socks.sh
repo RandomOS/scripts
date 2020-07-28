@@ -31,7 +31,7 @@ if [ $? -ne 0 ]; then
             wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/rocky-socks.sh \
                 && chmod +x /tmp/run.sh \
                 && docker cp /tmp/run.sh $container_name:/run.sh \
-                && rm /tmp/run.sh \
+                && rm -f /tmp/run.sh \
                 && docker start $container_name
         fi
     fi
