@@ -35,4 +35,5 @@ apk add --no-cache \
     make \
     musl-dev \
     libucontext-dev \
-    linux-headers
+    linux-headers \
+    file
