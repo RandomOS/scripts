@@ -12,11 +12,13 @@ if [ $? -ne 0 ]; then
 
         [ -n "$1" ] && container_name="$1"
 
-        if [ -n "$(docker ps -aq -f name=$container_name)" ]; then
+        docker container inspect $container_name >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
             docker rm -f $container_name
         fi
 
-        if [ ! -n "$(docker ps -aq -f name=$container_name)" ]; then
+        docker container inspect $container_name >/dev/null 2>&1
+        if [ $? -ne 0 ]; then
             docker create -it --net host --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -e LANG=en_US.UTF-8 \

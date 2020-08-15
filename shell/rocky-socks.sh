@@ -16,11 +16,13 @@ if [ $? -ne 0 ]; then
         [ -n "$2" ] && exposed_port="$2"
         [ -n "$3" ] && encrypt_key="$3"
 
-        if [ -n "$(docker ps -aq -f name=$container_name)" ]; then
+        docker container inspect $container_name >/dev/null 2>&1
+        if [ $? -eq 0 ]; then
             docker rm -f $container_name
         fi
 
-        if [ ! -n "$(docker ps -aq -f name=$container_name)" ]; then
+        docker container inspect $container_name >/dev/null 2>&1
+        if [ $? -ne 0 ]; then
             docker create -it --hostname "$container_name" --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -e ENCRYPT_KEY=$encrypt_key \
