@@ -5,7 +5,7 @@
 PATH="$PATH:."
 WORK_DIR="/tmp/chisel"
 
-CHISEL_VERSION="1.6.0"
+CHISEL_VERSION="1.7.0"
 
 mkdir -p $WORK_DIR && cd $WORK_DIR
 
