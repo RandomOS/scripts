@@ -205,7 +205,7 @@ def main():
     opts_error = False
     if opts.mode not in ('client', 'server'):
         opts_error = True
-    elif len(opts.key) < 4:
+    elif not (opts.key and len(opts.key) > 4):
         opts_error = True
     elif ':' not in opts.local_addr or ':' not in opts.remote_addr:
         opts_error = True
