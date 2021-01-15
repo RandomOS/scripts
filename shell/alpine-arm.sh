@@ -24,3 +24,11 @@ docker create -it --hostname "alpine-arm64" --name "alpine-arm64" \
     --init \
     multiarch/alpine:arm64-v3.10 /bin/sh
 docker start alpine-arm64
+
+docker rm -f alpine-amd64 >/dev/null 2>&1
+docker create -it --hostname "alpine-amd64" --name "alpine-amd64" \
+    -e TZ=Asia/Shanghai \
+    -v /dev/shm:/dev/shm \
+    --init \
+    multiarch/alpine:amd64-v3.10 /bin/sh
+docker start alpine-amd64
