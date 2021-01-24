@@ -33,7 +33,8 @@ sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 
 apt-get update
-apt-get install -y curl vim tzdata procps net-tools iproute2
+apt-get install -y curl vim tzdata procps net-tools iproute2 iputils-ping netcat-openbsd
+apt-get clean
 
 curl -4sk -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
 curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
