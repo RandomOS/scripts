@@ -21,7 +21,7 @@ if [ $? -ne 0 ]; then
         if [ $? -ne 0 ]; then
             docker create -it --net host --name "$container_name" \
                 -e TZ=Asia/Shanghai \
-                -v /run/shm:/run/shm \
+                -v /dev/shm:/dev/shm \
                 $image_name /bin/sh
             docker start $container_name
             docker exec $container_name wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/py38-lab.sh

@@ -19,7 +19,7 @@ docker create -it --hostname $container_name --name $container_name \
     -e TZ=Asia/Shanghai \
     --cap-add NET_ADMIN \
     --device /dev/net/tun \
-    -v /run/shm:/run/shm \
+    -v /dev/shm:/dev/shm \
     -v zerotier-storage:/var/lib/zerotier-one \
     --restart unless-stopped \
     isayme/zerotier:1.6.2 /run.sh

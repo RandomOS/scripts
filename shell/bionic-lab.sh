@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
             docker create -it --net host --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -e LANG=en_US.UTF-8 \
-                -v /run/shm:/run/shm \
+                -v /dev/shm:/dev/shm \
                 $image_name /bin/sh
             wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh \
                 && docker cp /tmp/run.sh $container_name:/tmp/run.sh \

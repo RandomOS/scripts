@@ -21,7 +21,7 @@ if [ $? -ne 0 ]; then
         if [ $? -ne 0 ]; then
             docker create -it --hostname "$container_name" --name "$container_name" \
                 -e TZ=Asia/Shanghai \
-                -v /run/shm:/run/shm \
+                -v /dev/shm:/dev/shm \
                 --init \
                 $image_name /bin/sh
             docker start $container_name

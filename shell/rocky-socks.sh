@@ -26,7 +26,7 @@ if [ $? -ne 0 ]; then
             docker create -it --hostname "$container_name" --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -e ENCRYPT_KEY=$encrypt_key \
-                -v /run/shm:/run/shm \
+                -v /dev/shm:/dev/shm \
                 -p $exposed_port:3721 \
                 --restart unless-stopped \
                 $image_name /run.sh
