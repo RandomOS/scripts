@@ -41,7 +41,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ ! -x "$(command -v socks)" ]; then
-    wget -q -O /bin/socks.gz https://geocities.ws/rocky/bin/linux/amd64/socks.gz \
+    wget -q -O /bin/socks.gz http://rocky.evai.pl/ftp/bin/linux/amd64/socks.gz \
         && gzip -d /bin/socks.gz \
         && chmod +x /bin/socks
 fi
