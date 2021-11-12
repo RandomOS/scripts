@@ -16,9 +16,8 @@ if [ ! -x $WORK_DIR/chisel ]; then
 fi
 
 if [ ! -x $WORK_DIR/cloudflared ]; then
-    wget -q -O cloudflared.tgz https://bin.equinox.io/c/VdrWdbjqyF/cloudflared-stable-linux-amd64.tgz \
-        && tar xf cloudflared.tgz \
-        && rm -f cloudflared.tgz
+    wget -q -O cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+        && chmod +x cloudflared
 fi
 
 truncate -s 0 cloudflared.log
