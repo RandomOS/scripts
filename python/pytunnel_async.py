@@ -67,6 +67,7 @@ class PyTunnel(asyncore.dispatcher):
         self.backlog = 100
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.set_reuse_addr()
+        self.set_reuse_port()
         self.bind((ip, port))
         self.listen(self.backlog)
 
@@ -77,6 +78,12 @@ class PyTunnel(asyncore.dispatcher):
     def listen(self, num):
         self.accepting = True
         return self.socket.listen(num)
+
+    def set_reuse_port(self):
+        try:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        except (AttributeError, socket.error):
+            pass
 
 
 class Receiver(asyncore.dispatcher):
