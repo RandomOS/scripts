@@ -22,7 +22,7 @@ docker create -it --hostname $container_name --name $container_name \
     -v /dev/shm:/dev/shm \
     -v zerotier-storage:/var/lib/zerotier-one \
     --restart unless-stopped \
-    isayme/zerotier:1.6.2 /run.sh
+    isayme/zerotier:1.8.4 /run.sh
 
 
 cat << 'EOF' > /tmp/run.sh
