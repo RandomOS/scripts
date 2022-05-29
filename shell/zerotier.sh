@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/zerotier.sh | sh
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/zerotier.sh | sh
 
 if [ ! -x "$(command -v docker)" ]; then
     echo "docker is not installed"

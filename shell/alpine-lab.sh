@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/alpine-lab.sh | bash -s alpine-lab
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/alpine-lab.sh | sh
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/alpine-lab.sh | bash -s alpine-lab
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/alpine-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
 

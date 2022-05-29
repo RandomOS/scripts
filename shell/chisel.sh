@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/chisel.sh | sh
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/chisel.sh | sh
 
 PATH="$PATH:."
 WORK_DIR="/tmp/chisel"

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh | bash -s bionic-lab
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh | sh
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/bionic-lab.sh | bash -s bionic-lab
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/bionic-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
 
@@ -24,7 +24,7 @@ if [ $? -ne 0 ]; then
                 -e LANG=en_US.UTF-8 \
                 -v /dev/shm:/dev/shm \
                 $image_name /bin/sh
-            wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/bionic-lab.sh \
+            wget -q -O /tmp/run.sh https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/bionic-lab.sh \
                 && docker cp /tmp/run.sh $container_name:/tmp/run.sh \
                 && rm -f /tmp/run.sh \
                 && docker start $container_name \

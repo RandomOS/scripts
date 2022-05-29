@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
-# wget -q -O - https://gitee.com/randomk/scripts/raw/master/shell/rocky-socks.sh | sh
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
+# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh | sh
 
 grep -qs docker /proc/self/cgroup
 
@@ -30,7 +30,7 @@ if [ $? -ne 0 ]; then
                 -p $exposed_port:3721 \
                 --restart unless-stopped \
                 $image_name /run.sh
-            wget -q -O /tmp/run.sh https://gitee.com/randomk/scripts/raw/master/shell/rocky-socks.sh \
+            wget -q -O /tmp/run.sh https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh \
                 && chmod +x /tmp/run.sh \
                 && docker cp /tmp/run.sh $container_name:/run.sh \
                 && rm -f /tmp/run.sh \
@@ -47,7 +47,7 @@ if [ ! -x "$(command -v socks)" ]; then
 fi
 
 if [ ! -x "$(command -v pytunnel)" ]; then
-    wget -q -O /bin/pytunnel https://gitee.com/randomk/scripts/raw/master/python/pytunnel_async.py \
+    wget -q -O /bin/pytunnel https://randomk.coding.net/p/misc/d/scripts/git/raw/master/python/pytunnel_async.py \
         && chmod +x /bin/pytunnel
 fi
 
