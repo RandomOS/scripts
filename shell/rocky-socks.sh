@@ -23,11 +23,11 @@ if [ $? -ne 0 ]; then
 
         docker container inspect $container_name >/dev/null 2>&1
         if [ $? -ne 0 ]; then
-            docker create -it --hostname "$container_name" --name "$container_name" \
+            docker create -it --net --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -e ENCRYPT_KEY=$encrypt_key \
+                -e PORT=$exposed_port \
                 -v /dev/shm:/dev/shm \
-                -p $exposed_port:3721 \
                 --restart unless-stopped \
                 --init \
                 $image_name /run.sh
@@ -52,5 +52,5 @@ if [ ! -x "$(command -v pytunnel)" ]; then
         && chmod +x /bin/pytunnel
 fi
 
-socks -d -i127.0.0.1 -p1080
-pytunnel -m server -l 0.0.0.0:3721 -r 127.0.0.1:1080 -k $ENCRYPT_KEY
+socks -d -i127.0.0.1 -p51080
+pytunnel -m server -l 0.0.0.0:$PORT -r 127.0.0.1:51080 -k $ENCRYPT_KEY
