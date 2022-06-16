@@ -29,6 +29,7 @@ if [ $? -ne 0 ]; then
                 -v /dev/shm:/dev/shm \
                 -p $exposed_port:3721 \
                 --restart unless-stopped \
+                --init \
                 $image_name /run.sh
             wget -q -O /tmp/run.sh https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh \
                 && chmod +x /tmp/run.sh \
