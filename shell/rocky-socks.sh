@@ -23,7 +23,7 @@ if [ $? -ne 0 ]; then
 
         docker container inspect $container_name >/dev/null 2>&1
         if [ $? -ne 0 ]; then
-            docker create -it --net --name "$container_name" \
+            docker create -it --net host --name "$container_name" \
                 -e TZ=Asia/Shanghai \
                 -e ENCRYPT_KEY=$encrypt_key \
                 -e PORT=$exposed_port \
