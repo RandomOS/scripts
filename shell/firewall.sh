@@ -19,7 +19,7 @@ fi
 # 如果该 IP 继续连接未开放端口，过期时间不复位，但包计数器会累计，
 # 如果累计超过 PORT_SCAN_MAX，该 IP 将无法连接任何端口，直到过期。
 IP_DENY_SECOND=60
-PORT_SCAN_MAX=5
+PORT_SCAN_MAX=3
 
 # 目标网卡
 DEV=$(ip -4 -o addr show scope global | awk '/(eth[0-9]|en[0-9a-z]+)/ {print $2}' | head -n1)
@@ -52,18 +52,11 @@ ipset create scanner-ip-set hash:ip \
 iptables \
     -N TRAPSCAN
 
-# 更新扫描者 packets/bytes 计数器
+# 将 IP 加入扫描者名单，使用了 --match-set 就会更新 packets/bytes 计数器
 iptables \
     -A TRAPSCAN \
-    -m set --match-set scanner-ip-set src \
-    -j DROP
-
-# 将 IP 加入扫描者名单（仅首次）
-# 使用 iptables 动态改变 ipset，避免了额外的交互。本程序亮点~
-iptables \
-    -A TRAPSCAN \
-    -j SET \
-    --add-set scanner-ip-set src
+    -m set ! --match-set scanner-ip-set src \
+    -j SET --add-set scanner-ip-set src
 
 iptables \
     -A TRAPSCAN \
