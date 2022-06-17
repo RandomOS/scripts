@@ -44,58 +44,58 @@ IP_SET_MAX=$((100 * 1024 * 1024 / 8 / 60 * $IP_DENY_SECOND))
 
 # 扫描者名单
 ipset create scanner-ip-set hash:ip \
-  timeout $IP_DENY_SECOND \
-  maxelem $IP_SET_MAX \
-  counters
+    timeout $IP_DENY_SECOND \
+    maxelem $IP_SET_MAX \
+    counters
 
 ## function TRAPSCAN ##
 iptables \
-  -N TRAPSCAN
+    -N TRAPSCAN
 
 # 更新扫描者 packets/bytes 计数器
 iptables \
-  -A TRAPSCAN \
-  -m set --match-set scanner-ip-set src \
-  -j DROP
+    -A TRAPSCAN \
+    -m set --match-set scanner-ip-set src \
+    -j DROP
 
 # 将 IP 加入扫描者名单（仅首次）
 # 使用 iptables 动态改变 ipset，避免了额外的交互。本程序亮点~
 iptables \
-  -A TRAPSCAN \
-  -j SET \
-  --add-set scanner-ip-set src
+    -A TRAPSCAN \
+    -j SET \
+    --add-set scanner-ip-set src
 
 iptables \
-  -A TRAPSCAN \
-  -j DROP
+    -A TRAPSCAN \
+    -j DROP
 ## end function ##
 
 # 连接未开放端口，大概率是扫描者，交给 TRAPSCAN 处理
 iptables \
-  -i $DEV \
-  $INPUT \
-  -p tcp --syn \
-  -m set ! --match-set pub-port-set dst \
-  -j TRAPSCAN
+    -i $DEV \
+    $INPUT \
+    -p tcp --syn \
+    -m set ! --match-set pub-port-set dst \
+    -j TRAPSCAN
 
 # 连接未开放端口超过 PORT_SCAN_MAX 次的 IP，禁止访问任何服务！
 # 此处不更新计数器
 # 已建立的 TCP 不影响，因为此处只针对 --syn
 iptables \
-  -i $DEV \
-  $INPUT \
-  -p tcp --syn \
-  -m set ! --update-counters \
-  --match-set scanner-ip-set src \
-  --packets-gt $PORT_SCAN_MAX \
-  -j DROP
+    -i $DEV \
+    $INPUT \
+    -p tcp --syn \
+    -m set ! --update-counters \
+    --match-set scanner-ip-set src \
+    --packets-gt $PORT_SCAN_MAX \
+    -j DROP
 
 # 屏蔽非 SYN 类型的端口扫描
 # 例如扫描者发送 ACK，服务器默认会回复 RST，仍有可能暴露端口
 # 因此对于非 SYN 包，如果不匹配已建立的连接，则丢弃
 iptables \
-  -i $DEV \
-  -A INPUT \
-  -p tcp ! --syn \
-  -m conntrack ! --ctstate ESTABLISHED,RELATED \
-  -j DROP
+    -i $DEV \
+    -A INPUT \
+    -p tcp ! --syn \
+    -m conntrack ! --ctstate ESTABLISHED,RELATED \
+    -j DROP
