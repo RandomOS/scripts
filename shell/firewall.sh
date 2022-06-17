@@ -52,6 +52,12 @@ ipset create scanner-ip-set hash:ip \
 iptables \
     -N TRAPSCAN
 
+# 记录端口扫描的 log
+iptables \
+    -A TRAPSCAN \
+    -m set --match-set scanner-ip-set src \
+    -j LOG --log-prefix "trap: " --log-level 4
+
 # 将 IP 加入扫描者名单，使用了 --match-set 就会更新 packets/bytes 计数器
 iptables \
     -A TRAPSCAN \
