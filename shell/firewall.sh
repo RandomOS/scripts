@@ -18,7 +18,7 @@ fi
 # 如果有 IP 连接未开放端口，该 IP 将进入扫描者名单，过期时间 IP_DENY_SECOND 秒。
 # 如果该 IP 继续连接未开放端口，过期时间不复位，但包计数器会累计，
 # 如果累计超过 PORT_SCAN_MAX，该 IP 将无法连接任何端口，直到过期。
-IP_DENY_SECOND=60
+IP_DENY_SECOND=300
 PORT_SCAN_MAX=3
 
 # 目标网卡
