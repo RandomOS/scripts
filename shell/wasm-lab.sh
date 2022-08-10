@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/wasm-lab.sh | bash -s wasm-lab
-# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/wasm-lab.sh | sh
+# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/wasm-lab.sh | bash -s wasm-lab
+# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/wasm-lab.sh | sh
 
 grep -qs docker /proc/self/cgroup
 
@@ -24,7 +24,7 @@ if [ $? -ne 0 ]; then
                 -v /dev/shm:/dev/shm \
                 $image_name /bin/sh
             docker start $container_name
-            docker exec $container_name wget -q -O /tmp/run.sh https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/wasm-lab.sh
+            docker exec $container_name wget -q -O /tmp/run.sh https://code.aliyun.com/RandomK/scripts/raw/master/shell/wasm-lab.sh
             docker exec $container_name sh /tmp/run.sh
         fi
     fi

@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/bin/bashhttps://code.aliyun.com/RandomK/scripts/raw/master/shell
 
-# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/firewall.sh | bash
+# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/firewall.sh | bash
 
 # https://github.com/EtherDream/anti-portscan
 # 使用 iptables/ipset 阻止端口扫描

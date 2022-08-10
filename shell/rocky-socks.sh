@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
-# wget -q -O - https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh | sh
+# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
+# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | sh
 
 grep -qs docker /proc/self/cgroup
 
@@ -31,7 +31,7 @@ if [ $? -ne 0 ]; then
                 --restart unless-stopped \
                 --init \
                 $image_name /run.sh
-            wget -q -O /tmp/run.sh https://randomk.coding.net/p/misc/d/scripts/git/raw/master/shell/rocky-socks.sh \
+            wget -q -O /tmp/run.sh https://code.aliyun.com/RandomK/scripts/raw/master/shell/rocky-socks.sh \
                 && chmod +x /tmp/run.sh \
                 && docker cp /tmp/run.sh $container_name:/run.sh \
                 && rm -f /tmp/run.sh \
