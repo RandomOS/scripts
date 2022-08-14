@@ -1,18 +1,17 @@
 #!/bin/sh
 
-# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/chisel.sh | sh
+# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/brook.sh | sh
 
-CHISEL_VERSION="1.7.7"
+BROOK_VERSION="20220707"
 
 PATH="$PATH:."
-WORK_DIR="/tmp/chisel"
+WORK_DIR="/tmp/brook"
 
 mkdir -p $WORK_DIR && cd $WORK_DIR
 
-if [ ! -x $WORK_DIR/chisel ]; then
-    wget -q -O chisel.gz https://github.com/jpillora/chisel/releases/download/v${CHISEL_VERSION}/chisel_${CHISEL_VERSION}_linux_amd64.gz \
-        && gzip -d chisel.gz \
-        && chmod +x chisel
+if [ ! -x $WORK_DIR/brook ]; then
+    wget -q -O brook https://github.com/txthinking/brook/releases/download/v${BROOK_VERSION}/brook_linux_amd64 \
+        && chmod +x brook
 fi
 
 if [ ! -x $WORK_DIR/cloudflared ]; then
@@ -22,15 +21,16 @@ fi
 
 truncate -s 0 cloudflared.log
 
-pkill -x chisel
+pkill -x brook
 pkill -x cloudflared
-(chisel server --host 127.0.0.1 --port 54321 --auth chisel:chisel --socks5 --backend http://example.com >/dev/null 2>&1 &)
+(brook wsserver -l 127.0.0.1:54321 -p brook --path /brook/ >/dev/null 2>&1 &)
 (cloudflared tunnel --no-autoupdate --url http://127.0.0.1:54321 --logfile cloudflared.log >/dev/null 2>&1 &)
 
 for _ in `seq 1 30`; do
     CF_ENDPOINT=$(grep -oP -m 1 'https://[-.\w]+\.trycloudflare\.com' cloudflared.log)
     if [ $? -eq 0 ]; then
-        echo "chisel client --keepalive 30s --auth chisel:chisel $CF_ENDPOINT 6065:socks"
+        BROOK_ENDPOINT=$(echo ${CF_ENDPOINT} | sed 's|https:|wss:|')
+        echo "brook wsclient -s ${BROOK_ENDPOINT}/brook/ -p brook --socks5 0.0.0.0:6065"
         break
     fi
     sleep 1
