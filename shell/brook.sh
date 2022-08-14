@@ -30,7 +30,7 @@ for _ in `seq 1 30`; do
     CF_ENDPOINT=$(grep -oP -m 1 'https://[-.\w]+\.trycloudflare\.com' cloudflared.log)
     if [ $? -eq 0 ]; then
         BROOK_ENDPOINT=$(echo ${CF_ENDPOINT} | sed 's|https:|wss:|')
-        echo "brook wsclient -s ${BROOK_ENDPOINT}/brook/ -p brook --socks5 0.0.0.0:6065"
+        echo "brook wsclient -s ${BROOK_ENDPOINT}:443/brook/ -p brook --socks5 0.0.0.0:6065"
         break
     fi
     sleep 1
