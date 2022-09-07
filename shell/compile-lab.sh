@@ -32,6 +32,10 @@ if [ $? -ne 0 ]; then
     exit
 fi
 
+cp /etc/apk/repositories /etc/apk/repositories.orig
+echo 'https://dl-cdn.alpinelinux.org/alpine/v3.12/main' > /etc/apk/repositories
+echo 'https://dl-cdn.alpinelinux.org/alpine/v3.12/community' >> /etc/apk/repositories
+
 apk add --no-cache \
     gcc \
     make \
