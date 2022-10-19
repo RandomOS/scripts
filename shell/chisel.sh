@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/chisel.sh | sh
+# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/chisel.sh | sh
 
 CHISEL_VERSION="1.7.7"
 

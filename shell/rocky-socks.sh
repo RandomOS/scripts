@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
-# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | sh
+# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
+# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | sh
 
 container_name="rocky-socks"
 exposed_port="3721"

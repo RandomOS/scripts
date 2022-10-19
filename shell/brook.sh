@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/brook.sh | sh
+# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/brook.sh | sh
 
 BROOK_VERSION="20221010"
 
