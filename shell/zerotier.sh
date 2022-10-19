@@ -36,8 +36,8 @@ apt-get update
 apt-get install -y curl vim tzdata procps net-tools iproute2 iputils-ping netcat-openbsd
 apt-get clean
 
-curl -4sk -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
-curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+curl -4sk -o /root/.bashrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
+curl -4sk -o /root/.vimrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
 
 if [ "$(arch)" = "x86_64" ]; then
     arch="amd64"

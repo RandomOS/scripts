@@ -12,9 +12,9 @@ sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 apt-get update && apt-get install -y bash bash-completion curl vim tzdata
 
 mkdir -p /root/.pip
-curl -4sk -o /root/.pip/pip.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.pip/pip.conf
-curl -4sk -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
-curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+curl -4sk -o /root/.pip/pip.conf https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.pip/pip.conf
+curl -4sk -o /root/.bashrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
+curl -4sk -o /root/.vimrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
 
 pip install -qq --no-cache-dir --upgrade pip
 pip install -qq --no-cache-dir ipython==3.2.3

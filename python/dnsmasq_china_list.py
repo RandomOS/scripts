@@ -52,9 +52,9 @@ def url_request(url):
 
 def get_domains():
     dnsmasq_conf = ''
-    dnsmasq_conf += url_request('https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf')
-    dnsmasq_conf += url_request('https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/apple.china.conf')
-    dnsmasq_conf += url_request('https://cdn.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/google.china.conf')
+    dnsmasq_conf += url_request('https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/accelerated-domains.china.conf')
+    dnsmasq_conf += url_request('https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/apple.china.conf')
+    dnsmasq_conf += url_request('https://fastly.jsdelivr.net/gh/felixonmars/dnsmasq-china-list/google.china.conf')
     domains = []
     lines = dnsmasq_conf.split('\n')
     for line in lines:
