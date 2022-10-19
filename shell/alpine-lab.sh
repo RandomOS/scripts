@@ -20,10 +20,9 @@ fi
 
 docker container inspect $container_name >/dev/null 2>&1
 if [ $? -ne 0 ]; then
-    docker create -it --hostname "$container_name" --name "$container_name" \
+    docker run -d --hostname "$container_name" --name "$container_name" \
         -e TZ=Asia/Shanghai \
         -v /dev/shm:/dev/shm \
         --init \
         $image_name tail -f /dev/null
-    docker start $container_name
 fi
