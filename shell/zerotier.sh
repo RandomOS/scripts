@@ -24,10 +24,10 @@ docker create -it --hostname $container_name --name $container_name \
     --restart unless-stopped \
     isayme/zerotier:1.8.4 /run.sh
 
-
 cat << 'EOF' > /tmp/run.sh
 #!/bin/sh
 
+cp /etc/apt/sources.list /etc/apt/sources.list.orig
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
 sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list

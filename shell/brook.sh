@@ -2,7 +2,7 @@
 
 # wget -q -O - https://code.aliyun.com/RandomK/scripts/raw/master/shell/brook.sh | sh
 
-BROOK_VERSION="20220707"
+BROOK_VERSION="20221010"
 
 PATH="$PATH:."
 WORK_DIR="/tmp/brook"
