@@ -2,7 +2,7 @@
 
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/brook.sh | sh
 
-BROOK_VERSION="20221010"
+BROOK_VERSION="20230122"
 
 PATH="$PATH:."
 WORK_DIR="/tmp/brook"
