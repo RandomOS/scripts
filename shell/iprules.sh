@@ -33,6 +33,7 @@ ipset create blacklist hash:net maxelem 65536 timeout 0 2>/dev/null
 ipset create whitelist hash:net maxelem 65536 timeout 0 2>/dev/null
 
 iptables -A FIREWALL -i lo -j ACCEPT
+iptables -A FIREWALL -i $interface -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A FIREWALL -i $interface -m set --match-set whitelist src -j ACCEPT
 iptables -A FIREWALL -i $interface -m set --match-set blacklist src -p tcp -j REJECT --reject-with tcp-reset
 iptables -A FIREWALL -i $interface -m set --match-set blacklist src -p udp -j REJECT --reject-with icmp-port-unreachable
