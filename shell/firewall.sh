@@ -1,4 +1,4 @@
-#!/bin/bashhttps://jihulab.com/RandomK/scripts/raw/master/shell
+#!/bin/bash
 
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/firewall.sh | bash
 
