@@ -20,7 +20,7 @@ rm -rf /tmp/install \
     && cd /tmp \
     && rm -rf /tmp/install
 
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
     echo "[error] download failed"
     exit
 fi
