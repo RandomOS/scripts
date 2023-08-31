@@ -14,8 +14,18 @@ fi
 rm -rf /tmp/install \
     && mkdir -p /tmp/install \
     && cd /tmp/install \
-    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v1.7.5/cri-containerd-cni-1.7.5-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v1.7.5/containerd-1.7.5-linux-amd64.tar.gz \
     && tar -C /usr/local -xvf data.tar.gz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/nerdctl/releases/download/v1.5.0/nerdctl-1.5.0-linux-amd64.tar.gz \
+    && tar -C /usr/local/bin -xvf data.tar.gz \
+    && ln -sf /usr/local/bin/nerdctl /usr/local/bin/docker \
+    && wget -q -O runc.amd64 https://ghproxy.com/https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64 \
+    && install -m 755 runc.amd64 /usr/local/sbin/runc \
+    && mkdir -p /opt/cni/bin \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz \
+    && tar -C /opt/cni/bin -xvf data.tar.gz \
+    && mkdir -p /usr/local/lib/systemd/system \
+    && wget -q -O /usr/local/lib/systemd/system/containerd.service https://ghproxy.com/https://raw.githubusercontent.com/containerd/containerd/main/containerd.service \
     && cd /tmp \
     && rm -rf /tmp/install
 
