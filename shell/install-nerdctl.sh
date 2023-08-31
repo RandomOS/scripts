@@ -15,7 +15,7 @@ rm -rf /tmp/install \
     && mkdir -p /tmp/install \
     && cd /tmp/install \
     && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/nerdctl/releases/download/v1.5.0/nerdctl-full-1.5.0-linux-amd64.tar.gz \
-    && tar -C /usr/local -xvf data.tar.gz \
+    && tar -C /usr/local -xf data.tar.gz \
     && ln -sf /usr/local/bin/nerdctl /usr/local/bin/docker \
     && cd /tmp \
     && rm -rf /tmp/install
@@ -40,6 +40,8 @@ net.ipv4.ip_forward = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 EOF
+
+sysctl --system >/dev/null 2>&1
 
 # set registry mirror
 mkdir -p /etc/containerd
