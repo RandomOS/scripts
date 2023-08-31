@@ -14,7 +14,7 @@ fi
 rm -rf /tmp/install \
     && mkdir -p /tmp/install \
     && cd /tmp/install \
-    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v1.7.5/containerd-1.7.5-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v1.7.5/cri-containerd-cni-1.7.5-linux-amd64.tar.gz \
     && tar -C /usr/local -xvf data.tar.gz \
     && cd /tmp \
     && rm -rf /tmp/install
