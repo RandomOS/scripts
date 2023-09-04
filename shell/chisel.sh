@@ -2,7 +2,7 @@
 
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/chisel.sh | sh
 
-CHISEL_VERSION="1.8.1"
+CHISEL_VERSION="1.9.0"
 
 PATH="$PATH:."
 WORK_DIR="/tmp/chisel"
