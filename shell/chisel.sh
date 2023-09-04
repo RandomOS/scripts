@@ -29,7 +29,7 @@ pkill -x cloudflared
 
 for _ in `seq 1 30`; do
     CF_ENDPOINT=$(grep -oP -m 1 'https://[-.\w]+\.trycloudflare\.com' cloudflared.log | tail -n1)
-    if [ $? -eq 0 ]; then
+    if [ -n "${CF_ENDPOINT}" ]; then
         echo "chisel client --keepalive 30s --auth chisel:chisel $CF_ENDPOINT 6065:socks"
         break
     fi
