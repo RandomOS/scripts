@@ -2,6 +2,11 @@
 
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/install-containerd.sh | sh
 
+CONTAINERD_VERSION="1.7.5"
+NERDCTL_VERSION="1.6.2"
+RUNC_VERSION="1.1.9"
+CNI_VERSION="1.3.0"
+
 if [ "$(whoami)" != "root" ]; then
     exit
 fi
@@ -14,15 +19,15 @@ fi
 rm -rf /tmp/install \
     && mkdir -p /tmp/install \
     && cd /tmp/install \
-    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v1.7.5/containerd-1.7.5-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v${CONTAINERD_VERSION}/containerd-${CONTAINERD_VERSION}-linux-amd64.tar.gz \
     && tar -C /usr/local -xf data.tar.gz \
-    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/nerdctl/releases/download/v1.6.2/nerdctl-1.6.2-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-${NERDCTL_VERSION}-linux-amd64.tar.gz \
     && tar -C /usr/local/bin -xf data.tar.gz \
     && ln -sf /usr/local/bin/nerdctl /usr/local/bin/docker \
-    && wget -q -O runc.amd64 https://ghproxy.com/https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64 \
+    && wget -q -O runc.amd64 https://ghproxy.com/https://github.com/opencontainers/runc/releases/download/v${RUNC_VERSION}/runc.amd64 \
     && install -m 755 runc.amd64 /usr/local/sbin/runc \
     && mkdir -p /opt/cni/bin \
-    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containernetworking/plugins/releases/download/v${CNI_VERSION}/cni-plugins-linux-amd64-v${CNI_VERSION}.tgz \
     && tar -C /opt/cni/bin -xf data.tar.gz \
     && mkdir -p /usr/local/lib/systemd/system \
     && wget -q -O /usr/local/lib/systemd/system/containerd.service https://ghproxy.com/https://raw.githubusercontent.com/containerd/containerd/main/containerd.service \
