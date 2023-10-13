@@ -2,7 +2,7 @@
 
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/install-containerd.sh | sh
 
-CONTAINERD_VERSION="1.7.5"
+CONTAINERD_VERSION="1.7.7"
 NERDCTL_VERSION="1.6.2"
 RUNC_VERSION="1.1.9"
 CNI_VERSION="1.3.0"
