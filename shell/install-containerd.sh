@@ -16,7 +16,7 @@ rm -rf /tmp/install \
     && cd /tmp/install \
     && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/containerd/releases/download/v1.7.5/containerd-1.7.5-linux-amd64.tar.gz \
     && tar -C /usr/local -xf data.tar.gz \
-    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/nerdctl/releases/download/v1.5.0/nerdctl-1.5.0-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://ghproxy.com/https://github.com/containerd/nerdctl/releases/download/v1.6.2/nerdctl-1.6.2-linux-amd64.tar.gz \
     && tar -C /usr/local/bin -xf data.tar.gz \
     && ln -sf /usr/local/bin/nerdctl /usr/local/bin/docker \
     && wget -q -O runc.amd64 https://ghproxy.com/https://github.com/opencontainers/runc/releases/download/v1.1.9/runc.amd64 \
