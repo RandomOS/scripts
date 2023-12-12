@@ -3,9 +3,9 @@
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/install-containerd.sh | sh
 
 CONTAINERD_VERSION="1.7.9"
-NERDCTL_VERSION="1.7.0"
+NERDCTL_VERSION="1.7.2"
 RUNC_VERSION="1.1.10"
-CNI_VERSION="1.3.0"
+CNI_VERSION="1.4.0"
 
 if [ "$(whoami)" != "root" ]; then
     exit
