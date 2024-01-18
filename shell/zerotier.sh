@@ -22,7 +22,8 @@ docker create -it --hostname $container_name --name $container_name \
     -v /dev/shm:/dev/shm \
     -v zerotier-storage:/var/lib/zerotier-one \
     --restart unless-stopped \
-    zerotier/zerotier:1.12.2 /run.sh
+    --entrypoint /run.sh \
+    zerotier/zerotier:1.12.2
 
 cat << 'EOF' > /tmp/run.sh
 #!/bin/sh
@@ -36,8 +37,8 @@ apt-get update
 apt-get install -y curl vim tzdata procps net-tools iproute2 iputils-ping netcat-openbsd
 apt-get clean
 
-curl -4sk -o /root/.bashrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
-curl -4sk -o /root/.vimrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+curl -4sk -m 5 -o /root/.bashrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
+curl -4sk -m 5 -o /root/.vimrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
 
 if [ "$(arch)" = "x86_64" ]; then
     arch="amd64"
@@ -48,11 +49,11 @@ elif [ "$(arch)" = "armv7l" ]; then
 fi
 
 if [ -n "${arch}" ]; then
-    curl -4sk -o /usr/local/bin/tcppm.gz https://rocky.randomk.xyz/ftp/bin/linux/${arch}/tcppm.gz \
+    curl -4sk -m 30 -o /usr/local/bin/tcppm.gz https://rocky.randomk.xyz/ftp/bin/linux/${arch}/tcppm.gz \
         && gzip -d /usr/local/bin/tcppm.gz \
         && chmod +x /usr/local/bin/tcppm
 
-    curl -4sk -o /usr/local/bin/socks.gz https://rocky.randomk.xyz/ftp/bin/linux/${arch}/socks.gz \
+    curl -4sk -m 30 -o /usr/local/bin/socks.gz https://rocky.randomk.xyz/ftp/bin/linux/${arch}/socks.gz \
         && gzip -d /usr/local/bin/socks.gz \
         && chmod +x /usr/local/bin/socks
 fi
