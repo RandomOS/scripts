@@ -28,17 +28,20 @@ docker create -it --hostname $container_name --name $container_name \
 cat << 'EOF' > /tmp/run.sh
 #!/bin/sh
 
-cp /etc/apt/sources.list /etc/apt/sources.list.orig
+if [ ! -f /etc/apt/sources.list.orig ]; then
+    cp /etc/apt/sources.list /etc/apt/sources.list.orig
+fi
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
-sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
-sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
+sed -i 's/deb.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list
+sed -i 's/security.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list
+rm -f /etc/apt/sources.list.d/zerotier.list
 
 apt-get update
 apt-get install -y curl vim tzdata procps net-tools iproute2 iputils-ping netcat-openbsd
 apt-get clean
 
-curl -4sk -m 5 -o /root/.bashrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
-curl -4sk -m 5 -o /root/.vimrc https://fastly.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+curl -4sk -m 5 -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
+curl -4sk -m 5 -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
 
 if [ "$(arch)" = "x86_64" ]; then
     arch="amd64"
