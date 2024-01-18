@@ -34,6 +34,7 @@ if [ $? -ne 0 ]; then
     docker run -d --net host --name "$container_name" \
         -e TZ=Asia/Shanghai \
         -v /dev/shm:/dev/shm \
+        -w /root \
         --init \
         $image_name tail -f /dev/null
     docker cp /tmp/run.sh $container_name:/tmp/run.sh

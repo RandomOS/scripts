@@ -23,6 +23,7 @@ if [ $? -ne 0 ]; then
     docker run -d --hostname "$container_name" --name "$container_name" \
         -e TZ=Asia/Shanghai \
         -v /dev/shm:/dev/shm \
+        -w /root \
         --init \
         $image_name tail -f /dev/null
 fi
