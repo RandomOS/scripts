@@ -4,10 +4,9 @@
 # wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/py312-lab.sh | sh
 
 cat << 'EOF' > /tmp/run.sh
-cp /etc/apt/sources.list /etc/apt/sources.list.orig
-sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
-sed -i 's/deb.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list
-sed -i 's/security.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list
+sed -i '/snapshot.debian.org/d' /etc/apt/sources.list.d/debian.sources
+sed -i 's/deb.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list.d/debian.sources
+sed -i 's/security.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list.d/debian.sources
 
 apt-get update && apt-get install -y bash bash-completion curl vim tzdata
 
