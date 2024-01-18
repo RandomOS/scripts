@@ -22,7 +22,7 @@ docker create -it --hostname $container_name --name $container_name \
     -v /dev/shm:/dev/shm \
     -v zerotier-storage:/var/lib/zerotier-one \
     --restart unless-stopped \
-    isayme/zerotier:1.12.2 /run.sh
+    zerotier/zerotier:1.12.2 /run.sh
 
 cat << 'EOF' > /tmp/run.sh
 #!/bin/sh
@@ -59,7 +59,7 @@ fi
 
 echo '#!/bin/sh' > /run.sh
 echo '' >> /run.sh
-echo 'zerotier-one' >> /run.sh
+echo 'exec /entrypoint.sh' >> /run.sh
 EOF
 
 chmod +x /tmp/run.sh \
