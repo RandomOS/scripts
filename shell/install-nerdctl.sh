@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/install-nerdctl.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install-nerdctl.sh | sh
 
 NERDCTL_VERSION="1.7.2"
 

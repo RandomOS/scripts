@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/py38-lab.sh | bash -s py38-lab
-# wget -q -O - https://jihulab.com/RandomK/scripts/raw/master/shell/py38-lab.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py38-lab.sh | bash -s py38-lab
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py38-lab.sh | sh
 
 cat << 'EOF' > /tmp/run.sh
 cp /etc/apt/sources.list /etc/apt/sources.list.orig
