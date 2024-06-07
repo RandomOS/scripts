@@ -16,7 +16,7 @@ curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 mkdir -p /etc/docker
 cat << EOF > /etc/docker/daemon.json
 {
-    "registry-mirrors": ["https://docker.mirrors.sjtug.sjtu.edu.cn"],
+    "registry-mirrors": ["https://docker.m.daocloud.io"],
     "log-driver": "json-file",
     "log-opts": {
         "max-size": "1m",

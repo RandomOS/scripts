@@ -68,7 +68,7 @@ mkdir -p /etc/containerd/certs.d/docker.io
 cat << 'EOF' > /etc/containerd/certs.d/docker.io/hosts.toml
 server = "https://docker.io"
 
-[host."https://docker.mirrors.sjtug.sjtu.edu.cn"]
+[host."https://docker.m.daocloud.io"]
   capabilities = ["pull", "resolve"]
 EOF
 
