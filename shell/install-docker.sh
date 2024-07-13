@@ -11,7 +11,7 @@ if [ -x "$(command -v docker)" ]; then
     exit
 fi
 
-curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+curl -fsSL https://get.docker.com | bash -s docker --mirror AzureChinaCloud
 
 mkdir -p /etc/docker
 cat << EOF > /etc/docker/daemon.json
