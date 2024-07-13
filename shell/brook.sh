@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/brook.sh | sh
+# wget -q -O - https://cdn.randomk.org/scripts/shell/brook.sh | sh
 
 BROOK_VERSION="20230606"
 

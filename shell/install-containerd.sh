@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install-containerd.sh | sh
+# wget -q -O - https://cdn.randomk.org/scripts/shell/install-containerd.sh | sh
 
 CONTAINERD_VERSION="1.7.9"
 NERDCTL_VERSION="1.7.2"
@@ -68,7 +68,7 @@ mkdir -p /etc/containerd/certs.d/docker.io
 cat << 'EOF' > /etc/containerd/certs.d/docker.io/hosts.toml
 server = "https://docker.io"
 
-[host."https://docker.m.daocloud.io"]
+[host."https://dockerhub.icu"]
   capabilities = ["pull", "resolve"]
 EOF
 
