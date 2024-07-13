@@ -9,9 +9,7 @@ if [ ! -x "$(command -v docker)" ]; then
 fi
 
 cat << 'EOF' > /tmp/run.sh
-cp /etc/apk/repositories /etc/apk/repositories.orig
-echo 'https://dl-cdn.alpinelinux.org/alpine/v3.12/main' > /etc/apk/repositories
-echo 'https://dl-cdn.alpinelinux.org/alpine/v3.12/community' >> /etc/apk/repositories
+cp /etc/apk/repositories.orig /etc/apk/repositories
 
 apk add --no-cache \
     gcc \
