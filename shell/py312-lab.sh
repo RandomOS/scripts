@@ -1,7 +1,7 @@
 #!/bin/sh
 
+# curl -fsSL https://cdn.randomk.org/scripts/shell/py312-lab.sh | bash -s py312-lab
 # wget -q -O - https://cdn.randomk.org/scripts/shell/py312-lab.sh | bash -s py312-lab
-# wget -q -O - https://cdn.randomk.org/scripts/shell/py312-lab.sh | sh
 
 cat << 'EOF' > /tmp/run.sh
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list.d/debian.sources
@@ -11,9 +11,9 @@ sed -i 's/security.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list.d
 apt-get update && apt-get install -y bash bash-completion curl vim tzdata
 
 mkdir -p /root/.pip
-curl -4sk -o /root/.pip/pip.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.pip/pip.conf
-curl -4sk -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
-curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+curl -4sk -m 5 -o /root/.pip/pip.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.pip/pip.conf
+curl -4sk -m 5 -o /root/.bashrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.bashrc
+curl -4sk -m 5 -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
 
 pip install -qq --no-cache-dir --upgrade pip
 pip install -qq --no-cache-dir ipython

@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/alpine-lab.sh | bash -s alpine-lab
 # wget -q -O - https://cdn.randomk.org/scripts/shell/alpine-lab.sh | sh
 
 if [ ! -x "$(command -v docker)" ]; then

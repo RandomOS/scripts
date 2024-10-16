@@ -1,6 +1,5 @@
 #!/bin/sh
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/compile-lab.sh | bash -s compile-lab
 # wget -q -O - https://cdn.randomk.org/scripts/shell/compile-lab.sh | sh
 
 if [ ! -x "$(command -v docker)" ]; then
@@ -9,7 +8,8 @@ if [ ! -x "$(command -v docker)" ]; then
 fi
 
 cat << 'EOF' > /tmp/run.sh
-cp /etc/apk/repositories.orig /etc/apk/repositories
+curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
+[ $? -ne 0 ] && cp /etc/apk/repositories.orig /etc/apk/repositories
 
 apk add --no-cache \
     gcc \

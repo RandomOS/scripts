@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
-# wget -q -O - https://cdn.randomk.org/scripts/shell/rocky-socks.sh | sh
+# curl -fsSL https://cdn.randomk.org/scripts/shell/rocky-socks.sh | sh
+# curl -fsSL https://cdn.randomk.org/scripts/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
 
 container_name="rocky-socks"
 exposed_port="3721"
