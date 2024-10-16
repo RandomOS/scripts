@@ -52,11 +52,11 @@ elif [ "$(arch)" = "armv7l" ]; then
 fi
 
 if [ -n "${arch}" ]; then
-    curl -4sk -m 30 -o /usr/local/bin/tcppm.gz https://rocky.randomk.xyz/ftp/bin/linux/${arch}/tcppm.gz \
+    curl -4sk -m 30 -o /usr/local/bin/tcppm.gz https://r.randomk.xyz/ftp/bin/linux/${arch}/tcppm.gz \
         && gzip -d /usr/local/bin/tcppm.gz \
         && chmod +x /usr/local/bin/tcppm
 
-    curl -4sk -m 30 -o /usr/local/bin/socks.gz https://rocky.randomk.xyz/ftp/bin/linux/${arch}/socks.gz \
+    curl -4sk -m 30 -o /usr/local/bin/socks.gz https://r.randomk.xyz/ftp/bin/linux/${arch}/socks.gz \
         && gzip -d /usr/local/bin/socks.gz \
         && chmod +x /usr/local/bin/socks
 fi
