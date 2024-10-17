@@ -1,6 +1,6 @@
 #!/bin/shhttps://ghp.ci
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/install-containerd.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install-containerd.sh | sh
 
 CONTAINERD_VERSION="1.7.22"
 NERDCTL_VERSION="1.7.7"

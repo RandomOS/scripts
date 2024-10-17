@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/alpine-init.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/alpine-init.sh | sh
 
 curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
 [ $? -eq 0 ] && sed -i 's/dl-cdn.alpinelinux.org/mirrors.huaweicloud.com/g' /etc/apk/repositories

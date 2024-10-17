@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/chisel.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/chisel.sh | sh
 
 CHISEL_VERSION="1.9.0"
 

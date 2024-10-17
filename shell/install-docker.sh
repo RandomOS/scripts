@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://cdn.randomk.org/scripts/shell/install-docker.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install-docker.sh | sh
 
 if [ "$(whoami)" != "root" ]; then
     exit
