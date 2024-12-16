@@ -90,7 +90,6 @@ class Receiver(asyncore.dispatcher):
 
     def __init__(self, conn, mode, key):
         asyncore.dispatcher.__init__(self, conn)
-        self.client_ip, self.client_port = conn.getpeername()
         self.mode = mode
         self.key = key
         self.from_client_buffer = ''
@@ -100,6 +99,7 @@ class Receiver(asyncore.dispatcher):
         self.value = ''
         self.length = 0
         self.sender = None
+        self.client_ip, self.client_port = conn.getpeername()
 
     def readable(self):
         return len(self.from_client_buffer) < 40960
