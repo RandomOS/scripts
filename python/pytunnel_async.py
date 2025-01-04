@@ -11,7 +11,7 @@ import asyncore
 import logging
 import optparse
 
-logging.basicConfig(level=logging.DEBUG, format='[%(name)s:%(lineno)03d] %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(name)s:%(lineno)03d] %(message)s')
 logger = logging.getLogger('pytunnel')
 
 TAG = 128
@@ -99,7 +99,12 @@ class Receiver(asyncore.dispatcher):
         self.value = ''
         self.length = 0
         self.sender = None
-        self.client_ip, self.client_port = conn.getpeername()
+        self.client_ip = None
+        self.client_port = 0
+        try:
+            self.client_ip, self.client_port = conn.getpeername()
+        except socket.error as e:
+            self.handle_close()
 
     def readable(self):
         return len(self.from_client_buffer) < 40960
