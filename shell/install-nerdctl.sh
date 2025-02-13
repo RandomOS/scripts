@@ -16,7 +16,7 @@ fi
 rm -rf /tmp/install \
     && mkdir -p /tmp/install \
     && cd /tmp/install \
-    && wget -q -O data.tar.gz https://ghp.ci/https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-full-${NERDCTL_VERSION}-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-full-${NERDCTL_VERSION}-linux-amd64.tar.gz \
     && tar -C /usr/local -xf data.tar.gz \
     && ln -sf /usr/local/bin/nerdctl /usr/local/bin/docker \
     && cd /tmp \
