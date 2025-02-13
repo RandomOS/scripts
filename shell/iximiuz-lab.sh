@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/iximiuz-lab.sh | sudo bash
+
+STARSHIP_VERSION="1.8.0"
+
+install_pkg() {
+    apt-get install -y tmux fish >/dev/null 2>&1
+
+    mkdir -p /tmp/install \
+        && cd /tmp/install \
+        && wget -q -O data.tar.gz https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz \
+        && tar -xf data.tar.gz \
+        && cp -f starship /usr/local/bin/
+}
+
+init_config() {
+    curl -4sk -o /root/.bashrc https://gist.githubusercontent.com/RandomOS/09ad75edaf5e27548f7314c11cb9d30c/raw/f7209c5f8c6641f155e529a80e887573e15e8b2c/.bashrc
+    curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
+    curl -4sk -o /root/.tmux.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.tmux.conf
+
+    mkdir -p /root/.config/fish
+    cat << 'EOF' > /root/.config/fish/config.fish
+# Aliases
+alias ll='ls -lha'
+alias gocache='cd /run/shm'
+alias csearch='apt-cache search'
+alias mps='ps -u $USER -f f'
+
+# starship
+starship init fish | source
+EOF
+
+    mkdir -p /home/laborant/.config/fish
+    cp -f /root/.config/fish/config.fish /home/laborant/.config/fish/
+    cp -f /root/.vimrc /home/laborant/
+    cp -f /root/.tmux.conf /home/laborant/
+    chown -R laborant:laborant /home/laborant
+}
+
+init_system() {
+    chmod u+s /bin/ping
+}
+
+main() {
+    install_pkg
+    init_config
+    init_system
+}
+
+main "$@"
