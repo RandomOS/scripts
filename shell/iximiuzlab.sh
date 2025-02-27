@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/iximiuz-lab.sh | sudo bash
+# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/iximiuzlab.sh | sudo bash
 
 STARSHIP_VERSION="1.8.0"
 

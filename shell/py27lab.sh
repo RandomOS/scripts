@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/py27-lab.sh | bash -s py27-lab
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py27-lab.sh | bash -s py27-lab
+# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/py27lab.sh | bash -s py27-lab
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py27lab.sh | bash -s py27-lab
 
 cat << 'EOF' > /tmp/run.sh
 cp /etc/apt/sources.list /etc/apt/sources.list.orig

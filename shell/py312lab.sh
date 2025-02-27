@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/py312-lab.sh | bash -s py312-lab
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py312-lab.sh | bash -s py312-lab
+# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/py312lab.sh | bash -s py312-lab
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py312lab.sh | bash -s py312-lab
 
 cat << 'EOF' > /tmp/run.sh
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list.d/debian.sources

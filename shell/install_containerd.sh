@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install-containerd.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_containerd.sh | sh
 
 CONTAINERD_VERSION="1.7.22"
 NERDCTL_VERSION="2.0.0"

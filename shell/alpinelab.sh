@@ -1,26 +1,13 @@
 #!/bin/sh
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/compile-lab.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/alpinelab.sh | sh
 
 if [ ! -x "$(command -v docker)" ]; then
     echo "docker is not installed"
     exit 1
 fi
 
-cat << 'EOF' > /tmp/run.sh
-curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
-[ $? -ne 0 ] && cp /etc/apk/repositories.orig /etc/apk/repositories
-
-apk add --no-cache \
-    gcc \
-    make \
-    musl-dev \
-    libucontext-dev \
-    linux-headers \
-    file
-EOF
-
-container_name="compile-lab"
+container_name="alpine-lab"
 image_name="randomos/alpine-lab"
 
 [ -n "$1" ] && container_name="$1"
@@ -38,6 +25,4 @@ if [ $? -ne 0 ]; then
         -w /root \
         --init \
         $image_name tail -f /dev/null
-    docker cp /tmp/run.sh $container_name:/tmp/run.sh
-    docker exec $container_name sh /tmp/run.sh
 fi

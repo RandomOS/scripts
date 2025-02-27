@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | sh
-# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/rocky-socks.sh | bash -s rocky-socks 3721 helloworld
+# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/rockysocks.sh | sh
+# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/rockysocks.sh | bash -s rocky-socks 3721 helloworld
 
 container_name="rocky-socks"
 exposed_port="3721"
