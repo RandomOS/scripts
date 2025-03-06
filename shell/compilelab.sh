@@ -7,7 +7,7 @@ if [ ! -x "$(command -v docker)" ]; then
     exit 1
 fi
 
-cat << 'EOF' > /tmp/run.sh
+cat <<'EOF' >/tmp/run.sh
 curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
 [ $? -ne 0 ] && cp /etc/apk/repositories.orig /etc/apk/repositories
 

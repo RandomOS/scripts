@@ -3,7 +3,7 @@
 # curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/py312lab.sh | bash -s py312-lab
 # wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py312lab.sh | bash -s py312-lab
 
-cat << 'EOF' > /tmp/run.sh
+cat <<'EOF' >/tmp/run.sh
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list.d/debian.sources
 sed -i 's/deb.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list.d/debian.sources
 sed -i 's/security.debian.org/mirrors.huaweicloud.com/g' /etc/apt/sources.list.d/debian.sources

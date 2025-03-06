@@ -14,7 +14,7 @@ fi
 curl -fsSL https://get.docker.com | bash -s docker --mirror AzureChinaCloud
 
 mkdir -p /etc/docker
-cat << EOF > /etc/docker/daemon.json
+cat <<EOF >/etc/docker/daemon.json
 {
     "registry-mirrors": [
         "https://hub.fast360.xyz"

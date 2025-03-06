@@ -25,7 +25,7 @@ docker create -it --hostname $container_name --name $container_name \
     --entrypoint /run.sh \
     zerotier/zerotier:1.12.2
 
-cat << 'EOF' > /tmp/run.sh
+cat <<'EOF' >/tmp/run.sh
 #!/bin/sh
 
 if [ ! -f /etc/apt/sources.list.orig ]; then

@@ -20,7 +20,7 @@ init_root_config() {
     curl -4sk -o /root/.tmux.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.tmux.conf
 
     mkdir -p /root/.config/fish
-    cat << 'EOF' > /root/.config/fish/config.fish
+    cat <<'EOF' >/root/.config/fish/config.fish
 # Aliases
 alias ll='ls -lha'
 alias gocache='cd /run/shm'
@@ -32,7 +32,7 @@ starship init fish | source
 EOF
 
     mkdir -p /root/.config/tmuxp
-    cat << 'EOF' > /root/.config/tmuxp/dev.yaml
+    cat <<'EOF' >/root/.config/tmuxp/dev.yaml
 session_name: dev
 start_directory: /dev/shm
 windows:
