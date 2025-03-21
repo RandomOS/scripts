@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/alpinelab.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/alpinelab.sh | bash
 
-if [ ! -x "$(command -v docker)" ]; then
+if [[ ! -x $(command -v docker) ]]; then
     echo "docker is not installed"
     exit 1
 fi
@@ -10,15 +10,15 @@ fi
 container_name="alpine-lab"
 image_name="randomos/alpine-lab"
 
-[ -n "$1" ] && container_name="$1"
+[[ -n $1 ]] && container_name="$1"
 
 docker container inspect $container_name >/dev/null 2>&1
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
     docker rm -f $container_name
 fi
 
 docker container inspect $container_name >/dev/null 2>&1
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     docker run -d --hostname "$container_name" --name "$container_name" \
         -e TZ=Asia/Shanghai \
         -v /dev/shm:/dev/shm \
