@@ -5,12 +5,12 @@
 # https://github.com/EtherDream/anti-portscan
 # 使用 iptables/ipset 阻止端口扫描
 
-if [[ "$(whoami)" != "root" ]]; then
+if [[ $(whoami) != "root" ]]; then
     echo "Please run script as root!"
     exit 1
 fi
 
-if [ ! -x "$(command -v ipset)" ]; then
+if [[ ! -x $(command -v ipset) ]]; then
     echo "ipset is not installed!"
     exit 1
 fi
