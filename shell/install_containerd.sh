@@ -57,19 +57,4 @@ EOF
 
 sysctl --system >/dev/null 2>&1
 
-# set registry mirror
-mkdir -p /etc/containerd
-cat <<'EOF' >/etc/containerd/config.toml
-[plugins."io.containerd.grpc.v1.cri".registry]
-  config_path = "/etc/containerd/certs.d"
-EOF
-
-mkdir -p /etc/containerd/certs.d/docker.io
-cat <<'EOF' >/etc/containerd/certs.d/docker.io/hosts.toml
-server = "https://docker.io"
-
-[host."https://docker.mxdyeah.top"]
-  capabilities = ["pull", "resolve"]
-EOF
-
 systemctl restart containerd
