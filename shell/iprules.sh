@@ -2,17 +2,17 @@
 
 # wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/iprules.sh | bash -s eth0
 
-if [[ "$(whoami)" != "root" ]]; then
+if [[ $(whoami) != "root" ]]; then
     echo "Please run script as root!"
     exit 1
 fi
 
-if [ ! -x "$(command -v ipset)" ]; then
+if [[ ! -x $(command -v ipset) ]]; then
     echo "ipset is not installed!"
     exit 1
 fi
 
-if [[ -n "$1" ]]; then
+if [[ -n $1 ]]; then
     interface=$1
 else
     interface=$(ip -4 -o addr show scope global | awk '/(eth[0-9]|en[0-9a-z]+)/ {print $2}' | head -n1)
