@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_docker.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_docker.sh | bash
 
-if [ "$(whoami)" != "root" ]; then
+if [[ $(whoami) != "root" ]]; then
     exit
 fi
 
-if [ -x "$(command -v docker)" ]; then
+if [[ -x $(command -v docker) ]]; then
     echo "docker already installed"
     exit
 fi
