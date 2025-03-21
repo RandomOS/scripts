@@ -1,14 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_nerdctl.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_nerdctl.sh | bash
 
 NERDCTL_VERSION="2.0.4"
 
-if [ "$(whoami)" != "root" ]; then
+if [[ $(whoami) != "root" ]]; then
     exit
 fi
 
-if [ -x "$(command -v nerdctl)" ]; then
+if [[ -x $(command -v nerdctl) ]]; then
     echo "nerdctl already installed"
     exit
 fi
@@ -22,7 +22,7 @@ rm -rf /tmp/install \
     && cd /tmp \
     && rm -rf /tmp/install
 
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo "[error] download failed"
     exit
 fi

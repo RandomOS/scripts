@@ -1,17 +1,17 @@
-#!/bin/sh
+#!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_containerd.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_containerd.sh | bash
 
 CONTAINERD_VERSION="2.0.4"
 NERDCTL_VERSION="2.0.4"
 RUNC_VERSION="1.2.6"
 CNI_VERSION="1.6.2"
 
-if [ "$(whoami)" != "root" ]; then
+if [[ $(whoami) != "root" ]]; then
     exit
 fi
 
-if [ -x "$(command -v containerd)" ]; then
+if [[ -x $(command -v containerd) ]]; then
     echo "containerd already installed"
     exit
 fi
@@ -34,7 +34,7 @@ rm -rf /tmp/install \
     && cd /tmp \
     && rm -rf /tmp/install
 
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     echo "[error] download failed"
     exit
 fi
