@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/zerotier.sh | sh
+# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/zerotier.sh | bash
 
-if [ ! -x "$(command -v docker)" ]; then
+if [[ ! -x $(command -v docker) ]]; then
     echo "docker is not installed"
     exit 1
 fi
@@ -10,7 +10,7 @@ fi
 container_name="zerotier-one"
 
 docker container inspect $container_name >/dev/null 2>&1
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
     echo "$container_name already exists"
     exit 1
 fi
@@ -26,7 +26,7 @@ docker create -it --hostname $container_name --name $container_name \
     zerotier/zerotier:1.12.2
 
 cat <<'EOF' >/tmp/run.sh
-#!/bin/sh
+#!/bin/bash
 
 if [ ! -f /etc/apt/sources.list.orig ]; then
     cp /etc/apt/sources.list /etc/apt/sources.list.orig
@@ -61,7 +61,7 @@ if [ -n "${arch}" ]; then
         && chmod +x /usr/local/bin/socks
 fi
 
-echo '#!/bin/sh' > /run.sh
+echo '#!/bin/bash' > /run.sh
 echo '' >> /run.sh
 echo 'exec /entrypoint.sh' >> /run.sh
 EOF

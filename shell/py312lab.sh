@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/py312lab.sh | bash -s py312-lab
 # wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/py312lab.sh | bash -s py312-lab
@@ -22,15 +22,15 @@ EOF
 container_name="py312-lab"
 image_name="python:3.12-bookworm"
 
-[ -n "$1" ] && container_name="$1"
+[[ -n $1 ]] && container_name="$1"
 
 docker container inspect $container_name >/dev/null 2>&1
-if [ $? -eq 0 ]; then
+if [[ $? -eq 0 ]]; then
     docker rm -f $container_name
 fi
 
 docker container inspect $container_name >/dev/null 2>&1
-if [ $? -ne 0 ]; then
+if [[ $? -ne 0 ]]; then
     docker run -d --net host --name "$container_name" \
         -e TZ=Asia/Shanghai \
         -v /dev/shm:/dev/shm \
