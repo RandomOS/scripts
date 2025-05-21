@@ -2,7 +2,7 @@
 
 # wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_nerdctl.sh | bash
 
-NERDCTL_VERSION="2.0.4"
+NERDCTL_VERSION="2.1.2"
 
 if [[ $(whoami) != "root" ]]; then
     exit
