@@ -19,7 +19,7 @@ fi
 rm -rf /tmp/install \
     && mkdir -p /tmp/install \
     && cd /tmp/install \
-    && wget -q -O data.tar.gz https://github.com/containerd/containerd/releases/download/v${CONTAINERD_VERSION}/containerd-${CONTAINERD_VERSION}-linux-amd64.tar.gz \
+    && wget -q -O data.tar.gz https://github.com/containerd/containerd/releases/download/v${CONTAINERD_VERSION}/containerd-static-${CONTAINERD_VERSION}-linux-amd64.tar.gz \
     && tar -C /usr/local -xf data.tar.gz \
     && wget -q -O data.tar.gz https://github.com/containerd/nerdctl/releases/download/v${NERDCTL_VERSION}/nerdctl-${NERDCTL_VERSION}-linux-amd64.tar.gz \
     && tar -C /usr/local/bin -xf data.tar.gz \
