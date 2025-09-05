@@ -3,7 +3,7 @@
 # wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/install_containerd.sh | bash
 
 CONTAINERD_VERSION="2.1.4"
-NERDCTL_VERSION="2.1.3"
+NERDCTL_VERSION="2.1.4"
 RUNC_VERSION="1.3.0"
 CNI_VERSION="1.7.1"
 
