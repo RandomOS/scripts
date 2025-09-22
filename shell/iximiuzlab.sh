@@ -15,11 +15,12 @@ install_pkg() {
 }
 
 init_root_config() {
+    mkdir -p /root/.config/htop /root/.config/fish /root/.config/tmuxp
     curl -4sk -o /root/.bashrc https://gist.githubusercontent.com/RandomOS/09ad75edaf5e27548f7314c11cb9d30c/raw/f7209c5f8c6641f155e529a80e887573e15e8b2c/.bashrc
     curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
     curl -4sk -o /root/.tmux.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.tmux.conf
+    curl -4sk -o /root/.config/htop/htoprc https://gist.githubusercontent.com/RandomOS/09ad75edaf5e27548f7314c11cb9d30c/raw/8a10b2f2cfa23af0cf0ad320458869a64e58d0e8/htoprc
 
-    mkdir -p /root/.config/fish
     cat <<'EOF' >/root/.config/fish/config.fish
 # Aliases
 alias ll='ls -lha'
@@ -31,7 +32,6 @@ alias mps='ps -u $USER -f f'
 starship init fish | source
 EOF
 
-    mkdir -p /root/.config/tmuxp
     cat <<'EOF' >/root/.config/tmuxp/dev.yaml
 session_name: dev
 start_directory: /dev/shm
