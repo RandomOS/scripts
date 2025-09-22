@@ -71,6 +71,7 @@ init_config() {
 
 init_system() {
     chmod u+s /bin/ping
+    chown -R root:root /usr/local/bin /usr/local/share/btop
 }
 
 main() {
