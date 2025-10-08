@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# curl -fsSL https://gitlab.com/RandomK/scripts/raw/master/shell/notebook.sh | bash -s notebook
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/notebook.sh | bash -s notebook
+# curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/notebook.sh | bash -s notebook
+# wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/notebook.sh | bash -s notebook
 
 cat <<'EOE' >/tmp/run.sh
 mkdir -p ~/.pip

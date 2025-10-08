@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/alpinelab.sh | bash
+# wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/alpinelab.sh | bash
 
 if [[ ! -x $(command -v docker) ]]; then
     echo "docker is not installed"

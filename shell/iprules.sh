@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# wget -q -O - https://gitlab.com/RandomK/scripts/raw/master/shell/iprules.sh | bash -s eth0
+# wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/iprules.sh | bash -s eth0
 
 if [[ $(whoami) != "root" ]]; then
     echo "Please run script as root!"
