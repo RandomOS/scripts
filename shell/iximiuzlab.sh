@@ -3,15 +3,24 @@
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/iximiuzlab.sh | sudo bash
 
 STARSHIP_VERSION="1.8.0"
+MINISERVE_VERSION="0.32.0"
 
 install_pkg() {
     apt-get install -y fish lftp tmux tmuxp >/dev/null 2>&1
 
-    mkdir -p /tmp/install \
+    rm -rf /tmp/install \
+        && mkdir -p /tmp/install \
         && cd /tmp/install \
         && wget -q -O data.tar.gz https://github.com/starship/starship/releases/download/v${STARSHIP_VERSION}/starship-x86_64-unknown-linux-musl.tar.gz \
         && tar -xf data.tar.gz \
         && cp -f starship /usr/local/bin/
+
+    rm -rf /tmp/install \
+        && mkdir -p /tmp/install \
+        && cd /tmp/install \
+        && wget -q -O miniserve ${GITHUB_URL}/svenstaro/miniserve/releases/download/v${MINISERVE_VERSION}/miniserve-${MINISERVE_VERSION}-x86_64-unknown-linux-musl \
+        && chmod +x miniserve \
+        && cp -f miniserve /usr/local/bin/
 }
 
 init_root_config() {
@@ -27,6 +36,7 @@ alias ll='ls -lha'
 alias gocache='cd /run/shm'
 alias csearch='apt-cache search'
 alias mps='ps -u $USER -f f'
+alias k='kubectl'
 
 # starship
 starship init fish | source
