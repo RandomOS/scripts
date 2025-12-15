@@ -8,21 +8,18 @@ set -euo pipefail
 GITHUB_URL="https://github.com"
 MINISERVE_VERSION="0.32.0"
 
-if [[ -x $(command -v miniserve) ]]; then
-    if [[ $(miniserve -V | cut -d ' ' -f 2) != ${MINISERVE_VERSION} ]]; then
-        rm -rf /tmp/install \
-            && mkdir -p /tmp/install \
-            && cd /tmp/install \
-            && wget -q -O miniserve ${GITHUB_URL}/svenstaro/miniserve/releases/download/v${MINISERVE_VERSION}/miniserve-${MINISERVE_VERSION}-x86_64-unknown-linux-musl \
-            && chmod +x miniserve \
-            && sudo cp -f miniserve /usr/local/bin/ \
-            && cd /tmp \
-            && rm -rf /tmp/install
-
-        if [[ $? -ne 0 ]]; then
-            echo "[error] download failed"
-            exit
-        fi
+if [[ ! -x $(command -v miniserve) ]]; then
+    rm -rf /tmp/install \
+        && mkdir -p /tmp/install \
+        && cd /tmp/install \
+        && wget -q -O miniserve ${GITHUB_URL}/svenstaro/miniserve/releases/download/v${MINISERVE_VERSION}/miniserve-${MINISERVE_VERSION}-x86_64-unknown-linux-musl \
+        && chmod +x miniserve \
+        && sudo cp -f miniserve /usr/local/bin/ \
+        && cd /tmp \
+        && rm -rf /tmp/install
+    if [[ $? -ne 0 ]]; then
+        echo "[error] download failed"
+        exit
     fi
 fi
 
