@@ -6,7 +6,7 @@ STARSHIP_VERSION="1.8.0"
 MINISERVE_VERSION="0.32.0"
 
 install_pkg() {
-    apt-get install -y fish lftp tmux tmuxp >/dev/null 2>&1
+    apt-get install -y fish lftp nload tmux tmuxp >/dev/null 2>&1
 
     rm -rf /tmp/install \
         && mkdir -p /tmp/install \
