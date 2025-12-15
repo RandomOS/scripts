@@ -2,7 +2,6 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/expose_http_server.sh | sudo bash
 
-set -euo pipefail
 [[ ${DEBUG:-0} == 1 ]] && set -x
 
 GITHUB_URL="https://github.com"
@@ -24,7 +23,7 @@ if [[ ! -x $(command -v miniserve) ]]; then
 fi
 
 mkdir -p /tmp/www
-killall miniserve 2>&1
+killall miniserve >/dev/null 2>&1
 (miniserve -D -p 8080 /tmp/www >/dev/null 2>&1 &)
 
 ssh -o StrictHostKeyChecking=no -t -R 80:localhost:8080 proxy.tunnl.gg
