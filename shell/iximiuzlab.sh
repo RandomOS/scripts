@@ -18,7 +18,7 @@ install_pkg() {
     rm -rf /tmp/install \
         && mkdir -p /tmp/install \
         && cd /tmp/install \
-        && wget -q -O miniserve ${GITHUB_URL}/svenstaro/miniserve/releases/download/v${MINISERVE_VERSION}/miniserve-${MINISERVE_VERSION}-x86_64-unknown-linux-musl \
+        && wget -q -O miniserve https://github.com/svenstaro/miniserve/releases/download/v${MINISERVE_VERSION}/miniserve-${MINISERVE_VERSION}-x86_64-unknown-linux-musl \
         && chmod +x miniserve \
         && cp -f miniserve /usr/local/bin/
 }
