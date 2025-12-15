@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/expose_http_server.sh | sudo bash
+# curl -fsSL -o /tmp/expose_http_server.sh https://raw.githubusercontent.com/RandomOS/scripts/master/shell/expose_http_server.sh && bash /tmp/expose_http_server.sh
 
 [[ ${DEBUG:-0} == 1 ]] && set -x
 
