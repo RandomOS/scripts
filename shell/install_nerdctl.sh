@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_nerdctl.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_nerdctl.sh | bash
 
 NERDCTL_VERSION="2.2.0"
 

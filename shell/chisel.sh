@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/chisel.sh | sh
+# curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/chisel.sh | sh
 
 CHISEL_VERSION="1.9.0"
 

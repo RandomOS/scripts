@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_docker.sh | bash
+# curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_docker.sh | bash
 
 if [[ $(whoami) != "root" ]]; then
     exit
