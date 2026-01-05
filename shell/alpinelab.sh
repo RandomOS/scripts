@@ -8,7 +8,7 @@ if [[ ! -x $(command -v docker) ]]; then
 fi
 
 container_name="alpine-lab"
-image_name="randomos/alpine-lab:3.22"
+image_name="randomos/alpine-lab:3.23"
 
 [[ -n $1 ]] && container_name="$1"
 
