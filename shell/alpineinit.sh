@@ -2,7 +2,7 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/alpineinit.sh | sh
 
-wget -q -O - https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
+curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
 [ $? -eq 0 ] && sed -i 's/dl-cdn.alpinelinux.org/mirrors.huaweicloud.com/g' /etc/apk/repositories
 
 apk update && apk add --no-cache bash bash-completion curl vim tzdata

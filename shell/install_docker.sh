@@ -11,7 +11,12 @@ if [[ -x $(command -v docker) ]]; then
     exit
 fi
 
-curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
+if [[ $? -eq 0 ]]; then
+    curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
+else
+    curl -fsSL https://get.docker.com | bash -s docker
+fi
 
 mkdir -p /etc/docker
 cat <<EOF >/etc/docker/daemon.json
