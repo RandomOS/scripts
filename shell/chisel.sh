@@ -24,8 +24,8 @@ truncate -s 0 cloudflared.log
 
 pkill -x chisel
 pkill -x cloudflared
-(chisel server --host 127.0.0.1 --port 54321 --auth chisel:chisel --socks5 --backend http://example.com > /dev/null 2>&1 &)
-(cloudflared tunnel --no-autoupdate --url http://127.0.0.1:54321 --logfile cloudflared.log > /dev/null 2>&1 &)
+(chisel server --host 127.0.0.1 --port 54321 --auth chisel:chisel --socks5 --backend http://example.com >/dev/null 2>&1 &)
+(cloudflared tunnel --no-autoupdate --url http://127.0.0.1:54321 --logfile cloudflared.log >/dev/null 2>&1 &)
 
 for _ in $(seq 1 30); do
     CF_ENDPOINT=$(grep -oP -m 1 'https://[-.\w]+\.trycloudflare\.com' cloudflared.log | tail -n1)
