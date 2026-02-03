@@ -7,7 +7,7 @@ if [[ ! -x $(command -v docker) ]]; then
     exit 1
 fi
 
-cat <<'EOF' >/tmp/run.sh
+cat << 'EOF' > /tmp/run.sh
 curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
 [ $? -ne 0 ] && cp /etc/apk/repositories.orig /etc/apk/repositories
 
@@ -25,12 +25,12 @@ image_name="randomos/alpine-lab:3.23"
 
 [[ -n $1 ]] && container_name="$1"
 
-docker container inspect $container_name >/dev/null 2>&1
+docker container inspect $container_name > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     docker rm -f $container_name
 fi
 
-docker container inspect $container_name >/dev/null 2>&1
+docker container inspect $container_name > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
     docker run -d --hostname "$container_name" --name "$container_name" \
         -e TZ=Asia/Shanghai \

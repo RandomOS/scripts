@@ -3,7 +3,7 @@
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/py27lab.sh | bash -s py27-lab
 # wget -q -O - https://raw.githubusercontent.com/RandomOS/scripts/master/shell/py27lab.sh | bash -s py27-lab
 
-cat <<'EOF' >/tmp/run.sh
+cat << 'EOF' > /tmp/run.sh
 cp /etc/apt/sources.list /etc/apt/sources.list.orig
 sed -i '/snapshot.debian.org/d' /etc/apt/sources.list
 sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list
@@ -25,12 +25,12 @@ image_name="python:2.7-buster"
 
 [[ -n $1 ]] && container_name="$1"
 
-docker container inspect $container_name >/dev/null 2>&1
+docker container inspect $container_name > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     docker rm -f $container_name
 fi
 
-docker container inspect $container_name >/dev/null 2>&1
+docker container inspect $container_name > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
     docker run -d --net host --name "$container_name" \
         -e TZ=Asia/Shanghai \

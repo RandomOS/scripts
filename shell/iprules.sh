@@ -18,19 +18,19 @@ else
     interface=$(ip -4 -o addr show scope global | awk '/(eth[0-9]|en[0-9a-z]+)/ {print $2}' | head -n1)
 fi
 
-ip addr show $interface >/dev/null 2>&1
+ip addr show $interface > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
     echo "interface: [$interface] is invalid!"
     exit 1
 fi
 
-iptables -F FIREWALL 2>/dev/null
-iptables -N FIREWALL 2>/dev/null
+iptables -F FIREWALL 2> /dev/null
+iptables -N FIREWALL 2> /dev/null
 
-ipset destroy blacklist 2>/dev/null
-ipset destroy whitelist 2>/dev/null
-ipset create blacklist hash:net maxelem 65536 timeout 0 2>/dev/null
-ipset create whitelist hash:net maxelem 65536 timeout 0 2>/dev/null
+ipset destroy blacklist 2> /dev/null
+ipset destroy whitelist 2> /dev/null
+ipset create blacklist hash:net maxelem 65536 timeout 0 2> /dev/null
+ipset create whitelist hash:net maxelem 65536 timeout 0 2> /dev/null
 
 iptables -A FIREWALL -i lo -j ACCEPT
 iptables -A FIREWALL -i $interface -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
@@ -40,8 +40,8 @@ iptables -A FIREWALL -i $interface -m set --match-set blacklist src -p udp -j RE
 iptables -A FIREWALL -i $interface -m set --match-set blacklist src -j DROP
 iptables -A FIREWALL -j RETURN
 
-iptables -D INPUT -j FIREWALL 2>/dev/null
+iptables -D INPUT -j FIREWALL 2> /dev/null
 iptables -I INPUT -j FIREWALL
 
-iptables -D FORWARD -j FIREWALL 2>/dev/null
+iptables -D FORWARD -j FIREWALL 2> /dev/null
 iptables -I FORWARD -j FIREWALL

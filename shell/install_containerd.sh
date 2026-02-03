@@ -44,17 +44,17 @@ systemctl enable --now containerd
 modprobe overlay
 modprobe br_netfilter
 
-cat <<EOF >/etc/modules-load.d/containerd.conf
+cat << EOF > /etc/modules-load.d/containerd.conf
 overlay
 br_netfilter
 EOF
 
-cat <<EOF >/etc/sysctl.d/99-containerd.conf
+cat << EOF > /etc/sysctl.d/99-containerd.conf
 net.ipv4.ip_forward = 1
 net.bridge.bridge-nf-call-iptables = 1
 net.bridge.bridge-nf-call-ip6tables = 1
 EOF
 
-sysctl --system >/dev/null 2>&1
+sysctl --system > /dev/null 2>&1
 
 systemctl restart containerd

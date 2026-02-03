@@ -9,7 +9,7 @@ fi
 
 container_name="zerotier-one"
 
-docker container inspect $container_name >/dev/null 2>&1
+docker container inspect $container_name > /dev/null 2>&1
 if [[ $? -eq 0 ]]; then
     echo "$container_name already exists"
     exit 1
@@ -25,7 +25,7 @@ docker create -it --hostname $container_name --name $container_name \
     --entrypoint /run.sh \
     zerotier/zerotier:1.12.2
 
-cat <<'EOF' >/tmp/run.sh
+cat << 'EOF' > /tmp/run.sh
 #!/bin/bash
 
 if [ ! -f /etc/apt/sources.list.orig ]; then

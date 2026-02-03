@@ -19,7 +19,7 @@ else
 fi
 
 mkdir -p /etc/docker
-cat <<EOF >/etc/docker/daemon.json
+cat << EOF > /etc/docker/daemon.json
 {
     "log-driver": "json-file",
     "log-opts": {

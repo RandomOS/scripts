@@ -6,7 +6,7 @@ STARSHIP_VERSION="1.8.0"
 MINISERVE_VERSION="0.32.0"
 
 install_pkg() {
-    apt-get install -y fish lftp nload tmux tmuxp >/dev/null 2>&1
+    apt-get install -y fish lftp nload tmux tmuxp > /dev/null 2>&1
 
     rm -rf /tmp/install \
         && mkdir -p /tmp/install \
@@ -30,7 +30,7 @@ init_root_config() {
     curl -4sk -o /root/.tmux.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.tmux.conf
     curl -4sk -o /root/.config/htop/htoprc https://gist.githubusercontent.com/RandomOS/09ad75edaf5e27548f7314c11cb9d30c/raw/8a10b2f2cfa23af0cf0ad320458869a64e58d0e8/htoprc
 
-    cat <<'EOF' >/root/.config/fish/config.fish
+    cat << 'EOF' > /root/.config/fish/config.fish
 # Aliases
 alias ll='ls -lha'
 alias gocache='cd /run/shm'
@@ -42,7 +42,7 @@ alias k='kubectl'
 starship init fish | source
 EOF
 
-    cat <<'EOF' >/root/.config/tmuxp/dev.yaml
+    cat << 'EOF' > /root/.config/tmuxp/dev.yaml
 session_name: dev
 start_directory: /dev/shm
 windows:

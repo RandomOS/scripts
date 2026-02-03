@@ -24,7 +24,7 @@ PORT_SCAN_MAX=3
 # 目标网卡
 DEV=$(ip -4 -o addr show scope global | awk '/(eth[0-9]|en[0-9a-z]+)/ {print $2}' | head -n1)
 
-ip addr show $DEV >/dev/null 2>&1
+ip addr show $DEV > /dev/null 2>&1
 if [[ $? -ne 0 ]]; then
     echo "interface: [$DEV] is invalid!"
     exit 1
@@ -33,10 +33,10 @@ fi
 INPUT="-A INPUT"
 
 # 开放的端口
-ipset create pub-port-set bitmap:port range 0-65535 2>/dev/null
+ipset create pub-port-set bitmap:port range 0-65535 2> /dev/null
 
 # 如果应用程序端口有变化，需及时更新该 set，否则正常用户会被当成扫描者
-ipset add pub-port-set 22 2>/dev/null
+ipset add pub-port-set 22 2> /dev/null
 
 # 名单最大条数
 # 例如 100Mbps 网络下 IP_DENY_SECOND 秒能收到多少 SYN 包？（SYN 最小 60B）
@@ -46,7 +46,7 @@ IP_SET_MAX=$((100 * 1024 * 1024 / 8 / 60 * $IP_DENY_SECOND))
 ipset create scanner-ip-set hash:ip \
     timeout $IP_DENY_SECOND \
     maxelem $IP_SET_MAX \
-    counters 2>/dev/null
+    counters 2> /dev/null
 
 ## function TRAPSCAN ##
 iptables \

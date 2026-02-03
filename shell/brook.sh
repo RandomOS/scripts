@@ -23,8 +23,8 @@ truncate -s 0 cloudflared.log
 
 pkill -x brook
 pkill -x cloudflared
-(brook wsserver -l 127.0.0.1:54321 -p brook --path /brook/ >/dev/null 2>&1 &)
-(cloudflared tunnel --no-autoupdate --url http://127.0.0.1:54321 --logfile cloudflared.log >/dev/null 2>&1 &)
+(brook wsserver -l 127.0.0.1:54321 -p brook --path /brook/ > /dev/null 2>&1 &)
+(cloudflared tunnel --no-autoupdate --url http://127.0.0.1:54321 --logfile cloudflared.log > /dev/null 2>&1 &)
 
 for _ in $(seq 1 30); do
     CF_ENDPOINT=$(grep -oP -m 1 'https://[-.\w]+\.trycloudflare\.com' cloudflared.log | tail -n1)
