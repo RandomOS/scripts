@@ -2,7 +2,7 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_nerdctl.sh | bash
 
-NERDCTL_VERSION="2.2.0"
+NERDCTL_VERSION="2.2.2"
 
 if [[ $(whoami) != "root" ]]; then
     exit
