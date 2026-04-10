@@ -40,7 +40,7 @@ ipset add pub-port-set 22 2>/dev/null
 
 # 名单最大条数
 # 例如 100Mbps 网络下 IP_DENY_SECOND 秒能收到多少 SYN 包？（SYN 最小 60B）
-IP_SET_MAX=$((100 * 1024 * 1024 / 8 / 60 * $IP_DENY_SECOND))
+IP_SET_MAX=$((IP_DENY_SECOND * 100 * 1024 * 1024 / 8 / 60))
 
 # 扫描者名单
 ipset create scanner-ip-set hash:ip \
