@@ -77,6 +77,8 @@ windows:
       focus: true
 EOF
 
+    fish -c 'set -U fish_greeting ""'
+
     mkdir -p /etc/pssh
     awk '$1 ~ /^172/ {print $2}' /etc/hosts > /etc/pssh/nodes.txt
 }
