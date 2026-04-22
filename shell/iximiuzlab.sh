@@ -2,11 +2,15 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/iximiuzlab.sh | sudo bash
 
-STARSHIP_VERSION="1.8.0"
-MINISERVE_VERSION="0.32.0"
+STARSHIP_VERSION="1.25.0"
+MINISERVE_VERSION="0.35.0"
 
 install_pkg() {
-    apt-get install -y fish lftp nload tmux tmuxp >/dev/null 2>&1
+    apt-get install -y fish lftp nload tmux tmuxp pssh >/dev/null 2>&1
+
+    ln -s /usr/bin/parallel-ssh /usr/bin/pssh
+    ln -s /usr/bin/parallel-scp /usr/bin/pscp
+    ln -s /usr/bin/parallel-rsync /usr/bin/prsync
 
     rm -rf /tmp/install \
         && mkdir -p /tmp/install \
@@ -29,6 +33,14 @@ init_root_config() {
     curl -4sk -o /root/.vimrc https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.vimrc
     curl -4sk -o /root/.tmux.conf https://cdn.jsdelivr.net/gh/randomos/dockerfiles@master/alpine-lab/root/.tmux.conf
     curl -4sk -o /root/.config/htop/htoprc https://gist.githubusercontent.com/RandomOS/09ad75edaf5e27548f7314c11cb9d30c/raw/8a10b2f2cfa23af0cf0ad320458869a64e58d0e8/htoprc
+
+    cat <<'EOF' >/root/.ssh/config
+Host *
+ServerAliveInterval 30
+ServerAliveCountMax 60
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/nul
+EOF
 
     cat <<'EOF' >/root/.config/fish/config.fish
 # Aliases
@@ -64,6 +76,9 @@ windows:
       - clear
       focus: true
 EOF
+
+    mkdir -p /etc/pssh
+    awk '$1 ~ /^172/ {print $2}' /etc/hosts > /etc/pssh/nodes.txt
 }
 
 init_user_config() {
