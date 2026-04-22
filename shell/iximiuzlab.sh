@@ -4,6 +4,7 @@
 
 STARSHIP_VERSION="1.25.0"
 MINISERVE_VERSION="0.35.0"
+JUST_VERSION="1.50.0"
 
 install_pkg() {
     apt-get install -y fish lftp nload tmux tmuxp pssh >/dev/null 2>&1
@@ -25,6 +26,13 @@ install_pkg() {
         && wget -q -O miniserve https://github.com/svenstaro/miniserve/releases/download/v${MINISERVE_VERSION}/miniserve-${MINISERVE_VERSION}-x86_64-unknown-linux-musl \
         && chmod +x miniserve \
         && cp -f miniserve /usr/local/bin/
+
+    rm -rf /tmp/install \
+        && mkdir -p /tmp/install \
+        && cd /tmp/install \
+        && wget -q -O data.tar.gz https://github.com/casey/just/releases/download/${JUST_VERSION}/just-${JUST_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+        && tar -xf data.tar.gz \
+        && cp -f just /usr/local/bin/
 }
 
 init_root_config() {
@@ -78,9 +86,12 @@ windows:
 EOF
 
     fish -c 'set -U fish_greeting ""'
+    mkdir -p /root/.config/fish/completions
+    miniserve --print-completions fish >/root/.config/fish/completions/miniserve.fish
+    just --completions fish >/root/.config/fish/completions/just.fish
 
     mkdir -p /etc/pssh
-    awk '$1 ~ /^172/ {print $2}' /etc/hosts > /etc/pssh/nodes.txt
+    awk '$1 ~ /^172/ {print $2}' /etc/hosts >/etc/pssh/nodes.txt
 }
 
 init_user_config() {
