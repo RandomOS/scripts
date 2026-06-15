@@ -2,9 +2,9 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_containerd.sh | bash
 
-CONTAINERD_VERSION="2.3.0"
-NERDCTL_VERSION="2.3.0"
-RUNC_VERSION="1.4.2"
+CONTAINERD_VERSION="2.3.1"
+NERDCTL_VERSION="2.3.2"
+RUNC_VERSION="1.4.3"
 CNI_VERSION="1.9.1"
 
 if [[ $(whoami) != "root" ]]; then
