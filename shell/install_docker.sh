@@ -11,7 +11,7 @@ if [[ -x $(command -v docker) ]]; then
     exit
 fi
 
-curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
+curl -k -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
 if [[ $? -eq 0 ]]; then
     curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
 else

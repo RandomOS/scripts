@@ -8,7 +8,7 @@ if [[ ! -x $(command -v docker) ]]; then
 fi
 
 cat <<'EOF' >/tmp/run.sh
-curl -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
+curl -k -fsSL https://www.qualcomm.cn/cdn-cgi/trace | grep -wq 'loc=CN'
 [ $? -ne 0 ] && cp /etc/apk/repositories.orig /etc/apk/repositories
 
 apk add --no-cache \
