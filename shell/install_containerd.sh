@@ -3,7 +3,7 @@
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/install_containerd.sh | bash
 
 CONTAINERD_VERSION="2.3.2"
-NERDCTL_VERSION="2.3.3"
+NERDCTL_VERSION="2.3.4"
 RUNC_VERSION="1.5.0"
 CNI_VERSION="1.9.1"
 
