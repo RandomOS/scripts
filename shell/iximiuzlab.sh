@@ -7,7 +7,7 @@ MINISERVE_VERSION="0.35.0"
 JUST_VERSION="1.50.0"
 
 install_pkg() {
-    apt-get install -y fish lftp nload tmux tmuxp pssh >/dev/null 2>&1
+    apt-get install -y fish lftp nload tmux tmuxp pssh rsync >/dev/null 2>&1
 
     ln -s /usr/bin/parallel-ssh /usr/bin/pssh
     ln -s /usr/bin/parallel-scp /usr/bin/pscp
