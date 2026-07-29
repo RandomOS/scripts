@@ -218,25 +218,31 @@ class PyTunnel(object):
             except socket.error as e:
                 logger.error('accept error, e: %s', e)
                 continue
+            t = threading.Thread(target=self._safe_handle, args=(source_sock, source_addr))
+            t.setDaemon(True)
+            t.start()
+
+    def _safe_handle(self, source_sock, source_addr):
+        try:
+            self.handle(source_sock, source_addr)
+        except Exception as e:
+            logger.error('connection setup error, e: %s', e)
             try:
-                self.handle(source_sock, source_addr)
-            except Exception as e:
-                # never let a single bad connection kill the accept loop
-                logger.error('connection setup error, e: %s', e)
-                try:
-                    source_sock.close()
-                except socket.error:
-                    pass
+                source_sock.close()
+            except socket.error:
+                pass
 
     def handle(self, source_sock, source_addr):
         target_addr = (self.remote_ip, self.remote_port)
         target_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        target_sock.settimeout(5)
         try:
             target_sock.connect(target_addr)
         except socket.error as e:
             source_sock.close()
             target_sock.close()
             return
+        target_sock.settimeout(None)
 
         link = Link(source_sock, target_sock)
         if self.mode == 'server':
