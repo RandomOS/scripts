@@ -15,6 +15,8 @@ logging.basicConfig(level=logging.DEBUG, format='[%(name)s:%(lineno)03d] %(messa
 logger = logging.getLogger('pytunnel')
 
 TAG = 128
+RECV_SIZE = 4096
+IDLE_TIMEOUT = 300
 
 trans_table = {
     'encode_table': None,
@@ -128,19 +130,23 @@ class SendEncrypt(threading.Thread):
         abort = False
         while True:
             try:
-                data = self.source_sock.recv(4096)
+                data = self.source_sock.recv(RECV_SIZE)
                 if not data:
                     break
                 logger.debug('read  %04i from %s:%d', len(data), self.source_addr[0], self.source_addr[1])
                 frame = wraptlv(TAG, encrypt(data, self.key))
                 self.target_sock.sendall(frame)
                 logger.debug('write %04i to   %s:%d', len(frame), self.target_addr[0], self.target_addr[1])
+            except socket.timeout:
+                logger.info('idle timeout on %s:%d', self.source_addr[0], self.source_addr[1])
+                abort = True
+                break
             except socket.error as e:
                 logger.error('socket error, e: %s', e)
                 abort = True
                 break
-            except Exception as e:
-                logger.error('unknown error, e: %s', e)
+            except Exception:
+                logger.exception('unknown error')
                 abort = True
                 break
         logger.debug('connection %s:%d is closed.', self.source_addr[0], self.source_addr[1])
@@ -180,12 +186,16 @@ class RecvEncrypt(threading.Thread):
                 logger.error('protocol error, e: %s', e)
                 abort = True
                 break
+            except socket.timeout:
+                logger.info('idle timeout on %s:%d', self.source_addr[0], self.source_addr[1])
+                abort = True
+                break
             except socket.error as e:
                 logger.error('socket error, e: %s', e)
                 abort = True
                 break
-            except Exception as e:
-                logger.error('unknown error, e: %s', e)
+            except Exception:
+                logger.exception('unknown error')
                 abort = True
                 break
         logger.debug('connection %s:%d is closed.', self.source_addr[0], self.source_addr[1])
@@ -239,10 +249,15 @@ class PyTunnel(object):
         try:
             target_sock.connect(target_addr)
         except socket.error as e:
+            logger.error('cannot connect to %s:%d, e: %s', target_addr[0], target_addr[1], e)
             source_sock.close()
             target_sock.close()
             return
-        target_sock.settimeout(None)
+        # both sides of the relay read with an idle timeout so a stalled
+        # connection cannot pin a pair of threads forever; the first side to
+        # time out aborts the link and SHUT_RDWR kicks the peer out of recv
+        target_sock.settimeout(IDLE_TIMEOUT)
+        source_sock.settimeout(IDLE_TIMEOUT)
 
         link = Link(source_sock, target_sock)
         if self.mode == 'server':
@@ -263,9 +278,6 @@ class PyTunnel(object):
         for t in threads:
             t.setDaemon(True)
             t.start()
-
-    def __del__(self):
-        self.sock.close()
 
 
 def parse_addr(addr):
