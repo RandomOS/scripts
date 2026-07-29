@@ -22,6 +22,10 @@ trans_table = {
 }
 
 
+class ProtocolError(Exception):
+    pass
+
+
 def get_trans_table(key):
     if trans_table['encode_table'] and trans_table['decode_table']:
         return trans_table['encode_table'], trans_table['decode_table']
@@ -74,9 +78,7 @@ def recvtlv(sock):
         return None
     tag = struct.unpack('B', data)[0]
     if tag != TAG:
-        # the stream is out of sync, there is no way to resynchronise
-        logger.error('bad tag %d, expected %d', tag, TAG)
-        return None
+        raise ProtocolError('bad tag %d, expected %d' % (tag, TAG))
     data = recvall(sock, 2)
     if data is None:
         return None
@@ -174,6 +176,10 @@ class RecvEncrypt(threading.Thread):
                     continue
                 self.target_sock.sendall(decrypt(data, self.key))
                 logger.debug('write %04i to   %s:%d', len(data), self.target_addr[0], self.target_addr[1])
+            except ProtocolError as e:
+                logger.error('protocol error, e: %s', e)
+                abort = True
+                break
             except socket.error as e:
                 logger.error('socket error, e: %s', e)
                 abort = True
