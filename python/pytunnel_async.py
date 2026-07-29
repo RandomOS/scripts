@@ -56,6 +56,114 @@ def wraptlv(tag, value):
     return data
 
 
+class Relay(asyncore.dispatcher):
+    """Half of a tunnelled connection, closing in step with its peer.
+
+    A peer that reached EOF must not tear the pair down straight away: the
+    other direction may still hold data the client is waiting for. Instead the
+    write side is shut down once the shared buffer has been flushed, and the
+    sockets go away only after both directions are done.
+
+    Subclasses provide peer() and output_buffer(), and carry the TLV decoder
+    state (at_tlv_start_pos, tag_and_length, value, length) this class reads.
+    """
+
+    def __init__(self, sock=None):
+        asyncore.dispatcher.__init__(self, sock)
+        self.read_eof = False
+        self.write_closed = False
+
+    def peer(self):
+        raise NotImplementedError
+
+    def output_buffer(self):
+        """Bytes still waiting to be written to this side."""
+        raise NotImplementedError
+
+    def decoder_idle(self):
+        """False while a frame has been started but not fully decoded yet."""
+        return self.at_tlv_start_pos and not self.tag_and_length
+
+    def frame_decoded(self):
+        """A frame just landed in the peer buffer, it may unblock its close."""
+        peer = self.peer()
+        if peer is not None and peer.connected:
+            peer.flush_write()
+
+    def decoder_state(self):
+        peer = self.peer()
+        produced = len(peer.output_buffer()) if peer is not None else 0
+        return (produced, self.at_tlv_start_pos,
+                self.tag_and_length, self.value, self.length)
+
+    def decode_progress(self):
+        """Run one read step, tell whether it moved the decoder forward."""
+        before = self.decoder_state()
+        self.handle_read()
+        return before != self.decoder_state()
+
+    def writable(self):
+        return len(self.output_buffer()) > 0
+
+    def handle_close(self):
+        if self.read_eof:
+            # already half closed, the socket just keeps reporting EOF
+            return
+        # this side is done reading, tell the other one to stop writing to us
+        # (set first: recv() calls handle_close() again once it hits EOF)
+        self.read_eof = True
+        # EOF says no more bytes will arrive, but the kernel buffer may still
+        # hold whole frames, decode them before letting the peer shut down
+        while self.decode_progress():
+            pass
+        peer = self.peer()
+        if peer is None or peer.socket is None:
+            self.close_pair()
+            return
+        peer.close_write()
+
+    def close_write(self):
+        """Stop writing to this side once the pending output has been flushed.
+
+        The peer reached EOF, but bytes it already read may still be sitting in
+        its decoder, so the write side stays open until the peer is really done.
+        """
+        self.write_closed = True
+        self.flush_write()
+
+    def flush_write(self):
+        if not self.write_closed or self.output_buffer():
+            return
+        peer = self.peer()
+        if peer is not None and peer.connected and not peer.decoder_idle():
+            # a partially decoded frame is still on its way to us
+            return
+        try:
+            self.socket.shutdown(socket.SHUT_WR)
+        except socket.error:
+            pass
+        self.close_when_idle()
+
+    def idle(self):
+        """True once this side can neither receive nor deliver anything."""
+        return self.write_closed and not self.output_buffer()
+
+    def close_when_idle(self):
+        """Drop the pair once neither direction can carry anything anymore."""
+        peer = self.peer()
+        if peer is None or peer.socket is None:
+            if not self.output_buffer():
+                self.close_pair()
+        elif self.idle() and peer.idle():
+            self.close_pair()
+
+    def close_pair(self):
+        peer = self.peer()
+        self.close()
+        if peer is not None:
+            peer.close()
+
+
 class PyTunnel(asyncore.dispatcher):
 
     def __init__(self, ip, port, remote_ip, remote_port, mode, key):
@@ -72,8 +180,20 @@ class PyTunnel(asyncore.dispatcher):
         self.listen(self.backlog)
 
     def handle_accept(self):
-        conn, addr = self.accept()
-        Sender(Receiver(conn, self.mode, self.key), self.remote_ip, self.remote_port, self.mode, self.key)
+        pair = self.accept()
+        if pair is None:
+            # EWOULDBLOCK, ECONNABORTED or EAGAIN, there is nothing to accept
+            return
+        conn, addr = pair
+        receiver = Receiver(conn, self.mode, self.key)
+        if not receiver.connected:
+            # the peer is already gone, do not open a connection to the remote
+            return
+        Sender(receiver, self.remote_ip, self.remote_port, self.mode, self.key)
+
+    def handle_error(self):
+        # the default handler closes the channel, which would kill the listener
+        logger.exception('unexpected error while accepting a connection')
 
     def listen(self, num):
         self.accepting = True
@@ -86,10 +206,10 @@ class PyTunnel(asyncore.dispatcher):
             pass
 
 
-class Receiver(asyncore.dispatcher):
+class Receiver(Relay):
 
     def __init__(self, conn, mode, key):
-        asyncore.dispatcher.__init__(self, conn)
+        Relay.__init__(self, conn)
         self.mode = mode
         self.key = key
         self.from_client_buffer = ''
@@ -99,18 +219,22 @@ class Receiver(asyncore.dispatcher):
         self.value = ''
         self.length = 0
         self.sender = None
-        self.client_ip = None
+        self.client_ip = '?'
         self.client_port = 0
         try:
             self.client_ip, self.client_port = conn.getpeername()
         except socket.error as e:
             self.handle_close()
+            return
+
+    def peer(self):
+        return self.sender
+
+    def output_buffer(self):
+        return self.to_client_buffer
 
     def readable(self):
-        return len(self.from_client_buffer) < 40960
-
-    def writable(self):
-        return len(self.to_client_buffer) > 0
+        return not self.read_eof and len(self.from_client_buffer) < 40960
 
     def handle_connect(self):
         pass
@@ -120,11 +244,16 @@ class Receiver(asyncore.dispatcher):
             if self.at_tlv_start_pos:
                 tag, length = self.read_tag_and_length()
                 if tag is not None and length is not None:
-                    if tag != TAG or length == 0:
+                    if tag != TAG:
+                        # the stream is out of sync, there is no way to resynchronise
+                        logger.error('bad tag %d from %s:%d', tag, self.client_ip, self.client_port)
                         self.handle_close()
                         return
-                    self.at_tlv_start_pos = False
                     self.tag_and_length = ''
+                    if length == 0:
+                        # an empty frame carries no payload, wait for the next one
+                        return
+                    self.at_tlv_start_pos = False
                     self.length = length
             else:
                 value = self.read_value()
@@ -133,6 +262,7 @@ class Receiver(asyncore.dispatcher):
                     self.at_tlv_start_pos = True
                     self.value = ''
                     self.length = 0
+                    self.frame_decoded()
         elif self.mode == 'client':
             read = self.recv(4096)
             if read:
@@ -143,11 +273,11 @@ class Receiver(asyncore.dispatcher):
         sent = self.send(self.to_client_buffer)
         logger.debug('write %04i to   %s:%d', sent, self.client_ip, self.client_port)
         self.to_client_buffer = self.to_client_buffer[sent:]
+        self.flush_write()
 
-    def handle_close(self):
-        self.close()
-        if self.sender:
-            self.sender.close()
+    def handle_error(self):
+        logger.exception('error on connection from %s:%d', self.client_ip, self.client_port)
+        self.close_pair()
 
     def read_tag_and_length(self):
         tag_and_length_size = 3
@@ -176,10 +306,10 @@ class Receiver(asyncore.dispatcher):
             return self.value
 
 
-class Sender(asyncore.dispatcher):
+class Sender(Relay):
 
     def __init__(self, receiver, remote_ip, remote_port, mode, key):
-        asyncore.dispatcher.__init__(self)
+        Relay.__init__(self)
         self.remote_ip = remote_ip
         self.remote_port = remote_port
         self.mode = mode
@@ -197,13 +327,17 @@ class Sender(asyncore.dispatcher):
         try:
             asyncore.dispatcher.connect(self, address)
         except socket.error as e:
-            self.handle_close()
+            logger.error('cannot connect to %s:%d, e: %s', address[0], address[1], e)
+            self.close_pair()
+
+    def peer(self):
+        return self.receiver
+
+    def output_buffer(self):
+        return self.receiver.from_client_buffer
 
     def readable(self):
-        return len(self.receiver.to_client_buffer) < 40960
-
-    def writable(self):
-        return len(self.receiver.from_client_buffer) > 0
+        return not self.read_eof and len(self.receiver.to_client_buffer) < 40960
 
     def handle_connect(self):
         pass
@@ -218,11 +352,16 @@ class Sender(asyncore.dispatcher):
             if self.at_tlv_start_pos:
                 tag, length = self.read_tag_and_length()
                 if tag is not None and length is not None:
-                    if tag != TAG or length == 0:
-                        self.handle_close()
+                    if tag != TAG:
+                        # the stream is out of sync, there is no way to resynchronise
+                        logger.error('bad tag %d from %s:%d', tag, self.remote_ip, self.remote_port)
+                        self.close_pair()
+                        return
+                    self.tag_and_length = ''
+                    if length == 0:
+                        # an empty frame carries no payload, wait for the next one
                         return
                     self.at_tlv_start_pos = False
-                    self.tag_and_length = ''
                     self.length = length
             else:
                 value = self.read_value()
@@ -231,15 +370,17 @@ class Sender(asyncore.dispatcher):
                     self.at_tlv_start_pos = True
                     self.value = ''
                     self.length = 0
+                    self.frame_decoded()
 
     def handle_write(self):
         sent = self.send(self.receiver.from_client_buffer)
         logger.debug('write %04i to   %s:%d', sent, self.remote_ip, self.remote_port)
         self.receiver.from_client_buffer = self.receiver.from_client_buffer[sent:]
+        self.flush_write()
 
-    def handle_close(self):
-        self.close()
-        self.receiver.close()
+    def handle_error(self):
+        logger.exception('error on connection to %s:%d', self.remote_ip, self.remote_port)
+        self.close_pair()
 
     def read_tag_and_length(self):
         tag_and_length_size = 3
@@ -268,6 +409,19 @@ class Sender(asyncore.dispatcher):
             return self.value
 
 
+def parse_addr(addr):
+    """Parse an 'address:port' pair. Return None when it is missing or malformed."""
+    if not addr or addr.count(':') != 1:
+        return None
+    ip, port = addr.split(':')
+    if not ip or not port.isdigit():
+        return None
+    port = int(port)
+    if not 0 < port < 65536:
+        return None
+    return ip, port
+
+
 def main():
     parser = optparse.OptionParser(version='0.1.0')
     parser.add_option('-m', '--mode', dest='mode', help='client, server')
@@ -281,12 +435,15 @@ def main():
         parser.print_help()
         sys.exit()
 
+    local = parse_addr(opts.local_addr)
+    remote = parse_addr(opts.remote_addr)
+
     opts_error = False
     if opts.mode not in ('client', 'server'):
         opts_error = True
-    elif not (opts.key and len(opts.key) > 4):
+    if not opts.key:
         opts_error = True
-    elif ':' not in opts.local_addr or ':' not in opts.remote_addr:
+    if local is None or remote is None:
         opts_error = True
 
     if opts_error:
@@ -298,10 +455,8 @@ def main():
     else:
         logging.disable(logging.CRITICAL)
 
-    local_ip, local_port = opts.local_addr.split(':')
-    remote_ip, remote_port = opts.remote_addr.split(':')
-    local_port = int(local_port)
-    remote_port = int(remote_port)
+    local_ip, local_port = local
+    remote_ip, remote_port = remote
     key = hashlib.sha1(opts.key).hexdigest()
     tunnel = PyTunnel(local_ip, local_port, remote_ip, remote_port, opts.mode, key)
 
