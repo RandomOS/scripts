@@ -80,6 +80,14 @@ class Relay(asyncore.dispatcher):
         """Bytes still waiting to be written to this side."""
         raise NotImplementedError
 
+    def clear_output_buffer(self):
+        """Discard bytes that can no longer be written to this side."""
+        raise NotImplementedError
+
+    def should_discard_output(self):
+        """True when buffered output can never be delivered and should be dropped."""
+        return False
+
     def decoder_idle(self):
         """False while a frame has been started but not fully decoded yet."""
         return self.at_tlv_start_pos and not self.tag_and_length
@@ -132,10 +140,17 @@ class Relay(asyncore.dispatcher):
         self.flush_write()
 
     def flush_write(self):
-        if not self.write_closed or self.output_buffer():
+        if not self.write_closed:
             return
+        if self.output_buffer():
+            if self.should_discard_output():
+                # The peer is gone; data waiting here can never be delivered.
+                # Drop it so the connection pair can finish closing.
+                self.clear_output_buffer()
+            else:
+                return
         peer = self.peer()
-        if peer is not None and peer.connected and not peer.decoder_idle():
+        if peer is not None and peer.connected and not peer.read_eof and not peer.decoder_idle():
             # a partially decoded frame is still on its way to us
             return
         try:
@@ -146,7 +161,7 @@ class Relay(asyncore.dispatcher):
 
     def idle(self):
         """True once this side can neither receive nor deliver anything."""
-        return self.write_closed and not self.output_buffer()
+        return (self.write_closed or self.read_eof) and not self.output_buffer()
 
     def close_when_idle(self):
         """Drop the pair once neither direction can carry anything anymore."""
@@ -233,6 +248,9 @@ class Receiver(Relay):
     def output_buffer(self):
         return self.to_client_buffer
 
+    def clear_output_buffer(self):
+        self.to_client_buffer = ''
+
     def readable(self):
         return not self.read_eof and len(self.from_client_buffer) < 40960
 
@@ -247,6 +265,7 @@ class Receiver(Relay):
                     if tag != TAG:
                         # the stream is out of sync, there is no way to resynchronise
                         logger.error('bad tag %d from %s:%d', tag, self.client_ip, self.client_port)
+                        self.tag_and_length = ''
                         self.handle_close()
                         return
                     self.tag_and_length = ''
@@ -336,6 +355,24 @@ class Sender(Relay):
     def output_buffer(self):
         return self.receiver.from_client_buffer
 
+    def clear_output_buffer(self):
+        self.receiver.from_client_buffer = ''
+
+    def should_discard_output(self):
+        """Backend is gone, so any buffered client data can never be sent."""
+        return self.read_eof
+
+    def writable(self):
+        """Only attempt writes while the remote end is still reachable.
+
+        Once we receive EOF from the remote (read_eof = True), further send()
+        calls would fail with EPIPE. Returning False here stops asyncore from
+        polling this socket for writability, preventing a busy-loop on errors.
+        The base class handle_close will drain the reverse direction and close
+        gracefully once both sides are idle.
+        """
+        return len(self.output_buffer()) > 0 and not self.read_eof
+
     def readable(self):
         return not self.read_eof and len(self.receiver.to_client_buffer) < 40960
 
@@ -355,6 +392,7 @@ class Sender(Relay):
                     if tag != TAG:
                         # the stream is out of sync, there is no way to resynchronise
                         logger.error('bad tag %d from %s:%d', tag, self.remote_ip, self.remote_port)
+                        self.tag_and_length = ''
                         self.close_pair()
                         return
                     self.tag_and_length = ''
