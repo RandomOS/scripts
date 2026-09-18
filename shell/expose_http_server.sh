@@ -5,8 +5,8 @@
 [[ ${DEBUG:-0} == 1 ]] && set -x
 
 GITHUB_URL="https://github.com"
-MINISERVE_VERSION="0.32.0"
-CLOUDFLARED_VERSION="2025.11.1"
+MINISERVE_VERSION="0.35.0"
+CLOUDFLARED_VERSION="2026.9.0"
 
 if [[ ! -x $(command -v miniserve) ]]; then
     rm -rf /tmp/install \
