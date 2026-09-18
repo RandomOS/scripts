@@ -2,9 +2,9 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/iximiuzlab.sh | sudo bash
 
-STARSHIP_VERSION="1.25.0"
+STARSHIP_VERSION="1.26.0"
 MINISERVE_VERSION="0.35.0"
-JUST_VERSION="1.50.0"
+JUST_VERSION="1.58.0"
 
 install_pkg() {
     apt-get install -y fish lftp nload tmux tmuxp pssh rsync >/dev/null 2>&1
