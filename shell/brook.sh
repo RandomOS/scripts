@@ -2,15 +2,14 @@
 
 # curl -fsSL https://raw.githubusercontent.com/RandomOS/scripts/master/shell/brook.sh | sh
 
-BROOK_VERSION="20230606"
-
 PATH="$PATH:."
 WORK_DIR="/tmp/brook"
 
 mkdir -p $WORK_DIR && cd $WORK_DIR
 
 if [ ! -x $WORK_DIR/brook ]; then
-    wget -q -O brook https://github.com/txthinking/brook/releases/download/v${BROOK_VERSION}/brook_linux_amd64 \
+    wget -q -O brook.gz https://r.randomk.xyz/ftp/bin/linux/amd64/brook.gz \
+        && gzip -d brook.gz \
         && chmod +x brook
 fi
 
